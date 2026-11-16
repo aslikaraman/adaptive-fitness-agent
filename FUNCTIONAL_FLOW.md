@@ -145,7 +145,8 @@ is safe, omits the pattern and says so in the summary.
 
 4. **LLM draft.** One structured call via `LLMClient.generate_plan()` (OllamaAdapter → `qwen3`,
    `with_structured_output`, temperature 0) with the profile, the skeleton and the allowed pool.
-   The model returns a Pydantic `PlanDraft` with concrete exercises, sets, reps and load.
+   The model returns a Pydantic `PlanDraft` for **week 1** with concrete exercises, sets, reps and load;
+   the Strategy derives weeks 2–4 from it with its progression rule (see §13.4).
 
 5. **Validation gate (Builder, always runs).** `TrainingPlanBuilder` turns the draft into the
    `TrainingPlan` Composite; `build()` checks:
@@ -418,8 +419,21 @@ Scenario tests (run without a real LLM, using `FakeLLMClient`):
    Recovery/motivation are left out to keep the flow short (YAGNI).
 3. **Injuries are captured as regions from a fixed list + free text**, which makes constraint compliance
    checkable automatically.
-4. **Plan length:** 4 weeks by default with adaptation after each session? Or a single repeating week? — *open*
+4. ~~Plan length?~~ **Decided:** a **4-week plan**. The LLM drafts only **week 1**; the Strategy copies it
+   to weeks 2–4 and applies its progression rule (e.g. +1 rep per set per week). This keeps the LLM output
+   small (better validity with a local model), gives the Composite a real `Week` level, and keeps the
+   progression deterministic. Adaptation changes the logged session's exercises in the **remaining**
+   sessions of the plan; completed sessions are never changed. After week 4 the user is offered a new plan
+   (F2 again with the same profile).
 5. **Pain → "see a professional"** is a recommendation and a flag; the app does not diagnose anything.
    Wording to be agreed before the demo.
-6. **Exercise catalog** is our own local JSON data (not model-generated), so the safety filter is testable
-   without a model. Owner: Rahul — *please confirm*.
+6. ~~Exercise catalog owner?~~ **Decided:** **Rahul**, because the catalog feeds the safety filter and the
+   Strategies, which are his domain half. It is our own hand-curated JSON file (not model-generated), so
+   the safety filter is testable without a model:
+   - File: `resources/exercise_catalog.json` (not under `data/`, which `.gitignore` excludes because it
+     holds the user's saved profile and plans).
+   - Size: about 40–60 exercises, covering every movement pattern, every equipment option and all three
+     levels, so every profile has a non-empty allowed pool. A unit test checks this.
+   - Every entry has all fields from §2 (`required_equipment`, `contraindicated_regions`, `level`, …).
+   - The infrastructure layer loads the file; the domain only receives the list of `Exercise` objects.
+   - If AI helps to draft entries, it is logged in `AI_USAGE.md` and every entry is checked by hand.
