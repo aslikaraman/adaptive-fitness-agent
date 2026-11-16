@@ -30,16 +30,22 @@ ollama pull qwen3:4b     # only used for the model comparison metric
 
 ## Running
 
-_Coming soon._
+```bash
+python -m fitness_agent.interface.main
+```
+
+_The application is still being built._
 
 ## Running the tests
 
 ```bash
-pytest --cov
+pytest --cov          # tests, including the layer rules
+lint-imports          # layer rules only (see ARCHITECTURE.md)
 ```
 
 ## Project documents
 
+- [ARCHITECTURE.md](ARCHITECTURE.md) – the four layers, the dependency rule and how it is checked
 - [FUNCTIONAL_FLOW.md](FUNCTIONAL_FLOW.md) – what the system does, step by step (onboarding → plan → feedback → adaptation)
 - [AI_USAGE.md](AI_USAGE.md) – log of every AI tool use (source for the AI Usage Cards)
 - [RESOURCES.md](RESOURCES.md) – external libraries, models and other resources
