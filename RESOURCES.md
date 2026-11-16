@@ -2,6 +2,12 @@
 
 All libraries, models, tools and other resources used in this project. Everything is free.
 
+## Language
+
+| Resource | Version | License | Used for |
+|---|---|---|---|
+| [Python](https://www.python.org) | 3.12 | PSF License | Programming language |
+
 ## Python libraries (runtime)
 
 | Library | Version | License | Used for |
@@ -37,7 +43,7 @@ The development tools are only run on our code; they are not part of the applica
 
 | Tool | Used for |
 |---|---|
-| Visual Paradigm | UML class and sequence diagrams |
+| Visual Paradigm Community Edition (free for non-commercial use) | UML class and sequence diagrams |
 | [Mermaid](https://mermaid.js.org) (MIT, rendered by GitHub) | Sketch diagrams in the Markdown documents |
 | Claude Code (Anthropic) | AI assistance, see [AI_USAGE.md](AI_USAGE.md) |
 

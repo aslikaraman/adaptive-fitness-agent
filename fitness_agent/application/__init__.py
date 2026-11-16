@@ -1,7 +1,7 @@
 """Application layer: use cases and the control of the conversation.
 
-Contains the application services called by the CLI (including the LLM retry
-loop), the CoachSession State machine, and the interfaces (abstract base
+Contains the CoachSession State machine (the only entry point for the CLI),
+the application services its states call (including the LLM retry loop), and the interfaces (abstract base
 classes) that the infrastructure layer implements: LLMClient, CoachAgent,
 Storage and CatalogLoader.
 

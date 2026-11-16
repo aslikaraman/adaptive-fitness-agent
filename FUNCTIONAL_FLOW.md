@@ -37,14 +37,14 @@ unavailable. Each retry re-prompts with the specific error.
 | **User (trainee)** | – | Enters profile, views plan, gives feedback, can undo the last change |
 | **CLI** | interface | Shows the current state and reads input; no business logic |
 | **Composition root** (`interface/main.py`) | interface | Creates the concrete objects and passes them in |
-| **CoachSession + states** | application | Controls the phases: onboarding, plan review, feedback, adaptation (State pattern) |
-| **Application services** | application | Use cases called by the CLI (§10), including the LLM retry loop |
+| **CoachSession + states** | application | Controls the phases: onboarding, plan review, feedback, adaptation (State pattern); the CLI talks only to `CoachSession` |
+| **Application services** | application | Use cases called by the states (§10), including the LLM retry loop |
 | **CoachAgent** (LangChain agent) | infrastructure (interface in application) | Turns free-text feedback into a structured `Feedback` via tools |
 | **LLMClient / OllamaAdapter** | infrastructure (interface in application) | Wraps the model (Adapter): `extract_profile()`, `generate_plan()`, `summarize_plan()`, `explain_changes()` |
 | **Storage / JsonStorage** | infrastructure (interface in application) | Saves and loads profile, plan, feedback and change history as JSON |
 | **CatalogLoader / JsonCatalogLoader** | infrastructure (interface in application) | Loads `resources/exercise_catalog.json` into a list of `Exercise` objects |
 | **StrategyFactory → PlanningStrategy** | domain | Encodes *what a good plan looks like* for one goal (split, volume, rep ranges, weekly progression) |
-| **TrainingPlanBuilder** | domain | Turns the LLM draft into a `TrainingPlan` Composite and runs the validation gate |
+| **TrainingPlanBuilder** | domain | Assembles the `TrainingPlan` Composite step by step (for the LLM draft and the fallback) and runs the validation gate |
 | **Exercise catalog** (`Exercise` objects) | domain | Exercise pool with equipment and contraindication tags |
 | **Adaptation pipeline** | domain | `SafetyFilter → ScheduleFilter → LoadFilter`, emits Commands |
 | **Commands + Mementos** | domain | Apply plan changes; snapshot before each change; undo |
@@ -439,7 +439,9 @@ flowchart TD
 
 ---
 
-## 10. Application services used by the CLI
+## 10. Application services
+
+The CLI passes every input to `CoachSession.handle(input)`; the current state calls these services.
 
 | Service call | Flow | Purpose |
 |---|---|---|
@@ -452,7 +454,7 @@ flowchart TD
 
 ---
 
-## 11. Pattern mapping (for PATTERNS.md)
+## 11. Pattern mapping (details in PATTERNS.md)
 
 | Pattern | Where it appears in this flow |
 |---|---|
@@ -465,6 +467,8 @@ flowchart TD
 | **Pipes & Filters** | §6.1 — `SafetyFilter → ScheduleFilter → LoadFilter`, common `process()` interface, `AdaptationContext` as data format |
 | **Command + Memento** | §6.5 — every change is a Command storing a Memento; undo restores the last feedback cycle |
 | **Template Method** | §6.5 — `PlanCommand.execute()` stores the Memento, then calls `_apply()`, which each Command implements |
+| **Retry with Fallback** | §0, §3, §4.5–4.6 — at most 3 attempts per structured LLM step, then a deterministic fallback |
+| **Tool-calling agent** | §5 — the LangChain agent turns free text into a `Feedback` through its four tools |
 
 ---
 

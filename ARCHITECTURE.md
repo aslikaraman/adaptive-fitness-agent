@@ -10,6 +10,7 @@ flowchart TD
     D["domain/<br/>models and rules (no LangChain)"]
     I --> INF
     I --> A
+    I --> D
     INF --> A
     INF --> D
     A --> D
@@ -23,7 +24,7 @@ layers, and `application` never imports `infrastructure` or `interface`.
 | Layer | Contains | May import |
 |---|---|---|
 | `domain/` | Pure Python models and rules: `UserProfile`, `Exercise`, `Feedback`, the `TrainingPlan` Composite, planning Strategies + `StrategyFactory`, `TrainingPlanBuilder`, the adaptation filters, Commands + `PlanMemento` | standard library, `pydantic` |
-| `application/` | Application services used by the CLI (incl. the LLM retry loop), the `CoachSession` State machine and its states, and the **interfaces** `LLMClient`, `CoachAgent`, `Storage`, `CatalogLoader` | `domain` |
+| `application/` | Application services used by the states (incl. the LLM retry loop), the `CoachSession` State machine and its states, and the **interfaces** `LLMClient`, `CoachAgent`, `Storage`, `CatalogLoader` | `domain` |
 | `infrastructure/` | The **implementations** of those interfaces: `OllamaAdapter` (`LLMClient`), the LangChain agent (`CoachAgent`), `JsonStorage` (`Storage`), `JsonCatalogLoader` (`CatalogLoader`), plus the prompt templates | `application`, `domain`, LangChain, Ollama |
 | `interface/` | The thin CLI (shows state, reads input, no business logic) and `main.py`, the composition root | all layers |
 
