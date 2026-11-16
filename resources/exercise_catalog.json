@@ -1,0 +1,902 @@
+[
+  {
+    "id": "bw_squat",
+    "name": "Bodyweight squat",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "knee"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      10,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "box_step_up",
+    "name": "Box step-up",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "knee",
+      "ankle"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      15
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "wall_sit",
+    "name": "Wall sit",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "knee"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "beginner"
+  },
+  {
+    "id": "goblet_squat",
+    "name": "Goblet squat",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "knee"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "kb_goblet_squat",
+    "name": "Kettlebell goblet squat",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "kettlebell"
+    ],
+    "contraindicated_regions": [
+      "knee"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "leg_press",
+    "name": "Leg press",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "machines"
+    ],
+    "contraindicated_regions": [
+      "knee"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      15
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "split_squat",
+    "name": "Dumbbell split squat",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "knee"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "back_squat",
+    "name": "Barbell back squat",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "barbell"
+    ],
+    "contraindicated_regions": [
+      "knee",
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      3,
+      8
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "front_squat",
+    "name": "Barbell front squat",
+    "movement_pattern": "squat",
+    "required_equipment": [
+      "barbell"
+    ],
+    "contraindicated_regions": [
+      "knee",
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      3,
+      8
+    ],
+    "load_type": "kg",
+    "level": "advanced"
+  },
+  {
+    "id": "glute_bridge",
+    "name": "Glute bridge",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": true,
+    "default_rep_range": [
+      10,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "single_leg_glute_bridge",
+    "name": "Single-leg glute bridge",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      15
+    ],
+    "load_type": "bw",
+    "level": "intermediate"
+  },
+  {
+    "id": "band_good_morning",
+    "name": "Band good morning",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "bands"
+    ],
+    "contraindicated_regions": [
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      12,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "kb_deadlift",
+    "name": "Kettlebell deadlift",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "kettlebell"
+    ],
+    "contraindicated_regions": [
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "kb_swing",
+    "name": "Kettlebell swing",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "kettlebell"
+    ],
+    "contraindicated_regions": [
+      "lower_back",
+      "shoulder"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      10,
+      20
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "romanian_deadlift",
+    "name": "Dumbbell Romanian deadlift",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "hip_thrust",
+    "name": "Barbell hip thrust",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "barbell"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "barbell_deadlift",
+    "name": "Barbell deadlift",
+    "movement_pattern": "hinge",
+    "required_equipment": [
+      "barbell"
+    ],
+    "contraindicated_regions": [
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      3,
+      6
+    ],
+    "load_type": "kg",
+    "level": "advanced"
+  },
+  {
+    "id": "push_up",
+    "name": "Push-up",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "wrist",
+      "shoulder"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "incline_push_up",
+    "name": "Incline push-up",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "wrist",
+      "shoulder"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "band_chest_press",
+    "name": "Band chest press",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "bands"
+    ],
+    "contraindicated_regions": [
+      "shoulder"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      12,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "band_overhead_press",
+    "name": "Band overhead press",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "bands"
+    ],
+    "contraindicated_regions": [
+      "shoulder",
+      "neck"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      10,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "db_bench_press",
+    "name": "Dumbbell bench press",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "shoulder"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      6,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "machine_chest_press",
+    "name": "Machine chest press",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "machines"
+    ],
+    "contraindicated_regions": [
+      "shoulder"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "db_shoulder_press",
+    "name": "Dumbbell shoulder press",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "shoulder",
+      "neck"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      6,
+      12
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "barbell_bench_press",
+    "name": "Barbell bench press",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "barbell"
+    ],
+    "contraindicated_regions": [
+      "shoulder",
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      3,
+      8
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "pike_push_up",
+    "name": "Pike push-up",
+    "movement_pattern": "push",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "wrist",
+      "shoulder",
+      "neck"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      5,
+      12
+    ],
+    "load_type": "bw",
+    "level": "advanced"
+  },
+  {
+    "id": "doorframe_row",
+    "name": "Doorframe row",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      15
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "band_row",
+    "name": "Band row",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "bands"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": true,
+    "default_rep_range": [
+      12,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "band_pull_apart",
+    "name": "Band pull-apart",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "bands"
+    ],
+    "contraindicated_regions": [
+      "shoulder"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      12,
+      20
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "db_row",
+    "name": "Dumbbell row",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "kb_row",
+    "name": "Kettlebell row",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "kettlebell"
+    ],
+    "contraindicated_regions": [
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "lat_pulldown",
+    "name": "Lat pulldown",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "machines"
+    ],
+    "contraindicated_regions": [
+      "shoulder"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "seated_cable_row",
+    "name": "Seated cable row",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "machines"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": true,
+    "default_rep_range": [
+      8,
+      12
+    ],
+    "load_type": "kg",
+    "level": "beginner"
+  },
+  {
+    "id": "barbell_row",
+    "name": "Barbell row",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "barbell"
+    ],
+    "contraindicated_regions": [
+      "lower_back"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      6,
+      10
+    ],
+    "load_type": "kg",
+    "level": "intermediate"
+  },
+  {
+    "id": "negative_pull_up",
+    "name": "Negative pull-up",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "pullup_bar"
+    ],
+    "contraindicated_regions": [
+      "shoulder",
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      3,
+      8
+    ],
+    "load_type": "bw",
+    "level": "intermediate"
+  },
+  {
+    "id": "pull_up",
+    "name": "Pull-up",
+    "movement_pattern": "pull",
+    "required_equipment": [
+      "pullup_bar"
+    ],
+    "contraindicated_regions": [
+      "shoulder",
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      3,
+      10
+    ],
+    "load_type": "bw",
+    "level": "advanced"
+  },
+  {
+    "id": "farmer_carry",
+    "name": "Farmer carry",
+    "movement_pattern": "carry",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "beginner"
+  },
+  {
+    "id": "suitcase_carry",
+    "name": "Kettlebell suitcase carry",
+    "movement_pattern": "carry",
+    "required_equipment": [
+      "kettlebell"
+    ],
+    "contraindicated_regions": [
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "intermediate"
+  },
+  {
+    "id": "waiter_carry",
+    "name": "Dumbbell waiter carry",
+    "movement_pattern": "carry",
+    "required_equipment": [
+      "dumbbells"
+    ],
+    "contraindicated_regions": [
+      "shoulder",
+      "wrist"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "intermediate"
+  },
+  {
+    "id": "plank",
+    "name": "Plank",
+    "movement_pattern": "core",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "shoulder"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "beginner"
+  },
+  {
+    "id": "dead_bug",
+    "name": "Dead bug",
+    "movement_pattern": "core",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": false,
+    "default_rep_range": [
+      8,
+      15
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "bird_dog",
+    "name": "Bird dog",
+    "movement_pattern": "core",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "wrist"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      8,
+      15
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "pallof_press",
+    "name": "Pallof press",
+    "movement_pattern": "core",
+    "required_equipment": [
+      "bands"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": false,
+    "default_rep_range": [
+      10,
+      15
+    ],
+    "load_type": "bw",
+    "level": "beginner"
+  },
+  {
+    "id": "side_plank",
+    "name": "Side plank",
+    "movement_pattern": "core",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "shoulder"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "intermediate"
+  },
+  {
+    "id": "hanging_knee_raise",
+    "name": "Hanging knee raise",
+    "movement_pattern": "core",
+    "required_equipment": [
+      "pullup_bar"
+    ],
+    "contraindicated_regions": [
+      "shoulder",
+      "wrist"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      8,
+      15
+    ],
+    "load_type": "bw",
+    "level": "intermediate"
+  },
+  {
+    "id": "brisk_walk",
+    "name": "Brisk walk",
+    "movement_pattern": "cardio",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": false,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "beginner"
+  },
+  {
+    "id": "jumping_jacks",
+    "name": "Jumping jacks",
+    "movement_pattern": "cardio",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "ankle",
+      "knee"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "beginner"
+  },
+  {
+    "id": "stationary_bike",
+    "name": "Stationary bike",
+    "movement_pattern": "cardio",
+    "required_equipment": [
+      "machines"
+    ],
+    "contraindicated_regions": [],
+    "is_compound": false,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "beginner"
+  },
+  {
+    "id": "burpee",
+    "name": "Burpee",
+    "movement_pattern": "cardio",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "wrist",
+      "knee"
+    ],
+    "is_compound": true,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "intermediate"
+  },
+  {
+    "id": "mountain_climber",
+    "name": "Mountain climber",
+    "movement_pattern": "cardio",
+    "required_equipment": [
+      "bodyweight"
+    ],
+    "contraindicated_regions": [
+      "wrist",
+      "hip"
+    ],
+    "is_compound": false,
+    "default_rep_range": [
+      1,
+      1
+    ],
+    "load_type": "time",
+    "level": "intermediate"
+  }
+]

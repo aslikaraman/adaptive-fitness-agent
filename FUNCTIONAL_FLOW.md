@@ -74,10 +74,11 @@ TrainingPlan (Composite root)
   └─ Week (Composite)          number (1..4), sessions[]
      └─ Session (Composite)    day_of_week, focus (e.g. "push"),
                                status (planned|done|missed|dropped), exercises[]
-        └─ PlannedExercise (Leaf)  exercise_id, sets, reps, load (kg | bodyweight | seconds),
-                                   rest_s, notes
+        └─ PlannedExercise (Leaf)  exercise_id, load_type (kg|bw|time, copied from the catalog),
+                                   sets, reps, load (kg | 0 for bodyweight | seconds), rest_s, notes
 
-  Every level implements: total_volume(), duration(), scale_intensity(factor)
+  Every level implements: total_volume() (sets × reps), duration() (seconds),
+  scale_intensity(factor)
 
 Feedback
   session_ref, rpe (1..10), pain (bool), pain_region?,
