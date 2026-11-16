@@ -98,7 +98,8 @@ made by deterministic code, so it can be tested without a model.
   exposing its internals.
 - **Where:** filters create `SwapExerciseCommand`, `AdjustVolumeCommand`, `RescheduleCommand` (with all
   parameters as members); `execute()` stores a `PlanMemento` of the `TrainingPlan` (originator), `undo()`
-  restores it; the history of feedback cycles is the caretaker.
+  restores it, so each Command is the caretaker of its Memento; the history keeps the executed Commands,
+  one entry per feedback cycle.
 - **Trade-off:** undo and the change history come for free and filters only decide while Commands
   change, at the cost of more objects and one plan snapshot per change.
 

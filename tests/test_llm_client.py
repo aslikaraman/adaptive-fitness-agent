@@ -24,10 +24,18 @@ def test_fake_returns_fixed_answers():
     assert fake.calls == ["extract_profile", "generate_plan", "explain_changes"]
 
 
-def test_fake_fails_the_first_n_structured_calls():
+def test_fake_fails_the_first_n_calls():
     """failures = 2 makes two calls fail, the third succeeds."""
     fake = FakeLLMClient(profile=PROFILE, failures=2)
     for _ in range(2):
         with pytest.raises(LLMError):
             fake.extract_profile("anything")
     assert fake.extract_profile("anything") == PROFILE
+
+
+def test_fake_can_fail_a_text_call():
+    """A failing explain_changes() lets tests reach the template-text fallback."""
+    fake = FakeLLMClient(failures=1)
+    with pytest.raises(LLMError):
+        fake.explain_changes(["rule"])
+    assert fake.explain_changes(["rule"]) == "Fake explanation."

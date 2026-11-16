@@ -8,8 +8,8 @@ from fitness_agent.domain.plan import TrainingPlan
 class FakeLLMClient(LLMClient):
     """Returns fixed answers, so tests run without Ollama.
 
-    failures = n makes the first n structured calls (extract_profile,
-    generate_plan) raise LLMError, to test the retry and the fallback.
+    failures = n makes the first n calls raise LLMError, to test the retry
+    and the fallbacks (deterministic result or template text).
     """
 
     def __init__(
@@ -28,7 +28,7 @@ class FakeLLMClient(LLMClient):
         self.failures = failures
         self.calls: list[str] = []
 
-    def _structured(self, name: str, result):
+    def _answer(self, name: str, result):
         """Record the call, fail while failures > 0, else return the fixed result."""
         self.calls.append(name)
         if self.failures > 0:
@@ -40,7 +40,7 @@ class FakeLLMClient(LLMClient):
 
     def extract_profile(self, answers: str, previous_error: str | None = None) -> UserProfile:
         """Return the fixed profile."""
-        return self._structured("extract_profile", self.profile)
+        return self._answer("extract_profile", self.profile)
 
     def generate_plan(
         self,
@@ -50,14 +50,12 @@ class FakeLLMClient(LLMClient):
         previous_error: str | None = None,
     ) -> PlanDraft:
         """Return the fixed plan draft."""
-        return self._structured("generate_plan", self.plan_draft)
+        return self._answer("generate_plan", self.plan_draft)
 
     def summarize_plan(self, profile: UserProfile, plan: TrainingPlan) -> str:
         """Return the fixed summary."""
-        self.calls.append("summarize_plan")
-        return self.summary
+        return self._answer("summarize_plan", self.summary)
 
     def explain_changes(self, changes: list[str]) -> str:
         """Return the fixed explanation."""
-        self.calls.append("explain_changes")
-        return self.explanation
+        return self._answer("explain_changes", self.explanation)
