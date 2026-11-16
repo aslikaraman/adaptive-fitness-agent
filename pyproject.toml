@@ -10,8 +10,9 @@ requires-python = ">=3.11"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "-m 'not ollama'"
 markers = [
-    "ollama: integration test that needs a running local Ollama (skip with -m 'not ollama')",
+    "ollama: integration test that needs a running local Ollama (run with: pytest -m ollama)",
 ]
 
 [tool.coverage.run]

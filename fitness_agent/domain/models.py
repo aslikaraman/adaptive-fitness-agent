@@ -118,25 +118,17 @@ class Feedback(BaseModel):
         return self
 
 
-class DraftExercise(BaseModel):
-    """One exercise in the LLM's week-1 draft."""
-
-    exercise_id: str
-    sets: int
-    reps: int
-    load: float
-    rest_s: int
-
-
 class DraftSession(BaseModel):
-    """One session in the LLM's week-1 draft."""
+    """One session in the LLM's week-1 draft: a focus and the chosen exercises, in order."""
 
-    day_of_week: int = Field(ge=1, le=7)
     focus: str
-    exercises: list[DraftExercise]
+    exercise_ids: list[str]
 
 
 class PlanDraft(BaseModel):
-    """The structured output of LLMClient.generate_plan(): week 1 only."""
+    """The structured output of LLMClient.generate_plan(): week 1 only.
+
+    The LLM only chooses the exercises; the Strategy sets days, sets, reps, load and rest.
+    """
 
     sessions: list[DraftSession]

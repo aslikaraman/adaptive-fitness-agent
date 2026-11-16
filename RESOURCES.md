@@ -15,6 +15,8 @@ All libraries, models, tools and other resources used in this project. Everythin
 | [LangChain](https://github.com/langchain-ai/langchain) | 1.5.0 | MIT | Agent framework |
 | [langchain-ollama](https://github.com/langchain-ai/langchain) | 1.1.0 | MIT | Connects LangChain to the local Ollama models |
 | [Pydantic](https://github.com/pydantic/pydantic) | 2.14.3 | MIT | Data models and validation of LLM output |
+| [langchain-core](https://github.com/langchain-ai/langchain) | 1.8.1 | MIT | Installed with langchain-ollama; its message types are used in the tests |
+| [HTTPX](https://github.com/encode/httpx) | 0.28.1 | BSD-3-Clause | Installed with langchain-ollama; its connection error is used in the tests |
 
 ## Python libraries (development and metrics)
 

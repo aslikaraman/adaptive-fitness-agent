@@ -47,10 +47,11 @@ pytest --cov          # tests, including the layer rules
 lint-imports          # layer rules only (see ARCHITECTURE.md)
 ```
 
-Tests marked `ollama` need a running local Ollama. To run everything else without it:
+By default the tests run without Ollama. The integration tests against the local model are marked
+`ollama` and run separately (Ollama must be running; they are slow on a CPU):
 
 ```bash
-pytest -m "not ollama"
+pytest -m ollama
 ```
 
 ## Baseline (`v0-baseline`)

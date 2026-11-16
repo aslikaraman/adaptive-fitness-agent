@@ -34,7 +34,7 @@ class LLMClient(ABC):
         allowed_pool: list[Exercise],
         previous_error: str | None = None,
     ) -> PlanDraft:
-        """Draft week 1 of the plan within the Strategy's constraints and the allowed pool.
+        """Choose the exercises of week 1 within the Strategy's constraints and the allowed pool.
 
         Raises LLMError on invalid output or when the model is unavailable.
         """
