@@ -53,6 +53,17 @@ Tests marked `ollama` need a running local Ollama. To run everything else withou
 pytest -m "not ollama"
 ```
 
+## Baseline (`v0-baseline`)
+
+The git tag `v0-baseline` holds a deliberately naive single-file version of the app (one God object,
+if/else mode handling, copy-pasted prompts) with the same features and rules. **It is not the
+submission**: it is the "before" version for our metrics and the source of our anti-pattern examples.
+It is not part of the `main` branch. To look at it:
+
+```bash
+git worktree add ../afa-baseline v0-baseline   # separate folder, main stays untouched
+```
+
 ## Project documents
 
 - [PATTERNS.md](PATTERNS.md) – the patterns we use, why, and the patterns we rejected
