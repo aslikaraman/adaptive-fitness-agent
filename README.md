@@ -58,7 +58,9 @@ pytest -m "not ollama"
 The git tag `v0-baseline` holds a deliberately naive single-file version of the app (one God object,
 if/else mode handling, copy-pasted prompts) with the same features and rules. **It is not the
 submission**: it is the "before" version for our metrics and the source of our anti-pattern examples.
-It is not part of the `main` branch. To look at it:
+It is not part of the `main` branch. View it on GitHub:
+[v0-baseline](https://github.com/aslikaraman/adaptive-fitness-agent/tree/v0-baseline), or check it
+out locally:
 
 ```bash
 git worktree add ../afa-baseline v0-baseline   # separate folder, main stays untouched
