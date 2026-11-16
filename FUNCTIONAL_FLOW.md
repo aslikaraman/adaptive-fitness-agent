@@ -94,6 +94,11 @@ HistoryEntry
   one feedback cycle: feedback_ref, commands[] (in execution order)
 ```
 
+**Exercise catalog:** `resources/exercise_catalog.json`, our own hand-curated file (not model-generated)
+with about 40–60 exercises covering every movement pattern, every equipment option and all three levels,
+so every profile has a non-empty allowed pool (checked by a unit test). Every entry has all `Exercise`
+fields above. `JsonCatalogLoader` loads the file; the domain only receives the list of `Exercise` objects.
+
 **Change rule:** a `TrainingPlan` is only changed by a **Command**. Each Command stores a `PlanMemento`
 in `execute()` before changing anything and restores it in `undo()`. Because `held_patterns` and
 `last_increase_week` are part of the plan, they are covered by the Memento too. The list of
@@ -128,7 +133,7 @@ in `execute()` before changing anything and restores it in `undo()`. Because `he
    (+2.5 %, §6.3).
 
    **Unknown injury region:** the text is kept in `injury_notes`. It cannot be filtered automatically, so
-   the plan summary repeats it and adds the "see a professional" hint (§13.5).
+   the plan summary repeats it and adds the "see a professional" hint (§6.5).
 
    Extraction follows the retry rule (§0): after 3 failed attempts the CLI asks each field as a
    fixed-choice question.
@@ -166,8 +171,10 @@ is safe, omits the pattern and says so in the summary.
 
 4. **LLM draft.** `LLMClient.generate_plan()` (OllamaAdapter → `qwen3`, `with_structured_output`,
    temperature 0) gets the profile, the skeleton and the allowed pool. The model returns a Pydantic
-   `PlanDraft` for **week 1** with concrete exercises, sets, reps and load; the Strategy derives weeks 2–4
-   from it with its progression rule (see §13.4).
+   `PlanDraft` for **week 1** with concrete exercises, sets, reps and load. The plan covers **4 weeks**:
+   the Strategy copies week 1 to weeks 2–4 and applies its progression rule (e.g. +1 rep per set per week).
+   This keeps the LLM output small (better validity with a local model) and the progression deterministic.
+   After week 4 the user is offered a new plan (F2 again with the same profile).
 
 5. **Step-wise construction + validation gate (Builder, always runs).** The `TrainingPlan` Composite is
    never created in one go. It is assembled step by step through `TrainingPlanBuilder`:
@@ -217,7 +224,7 @@ is safe, omits the pattern and says so in the summary.
 4. The logged session gets `status = done`; the feedback is saved through `Storage`, linked to the session.
 5. The state machine moves to `AdaptationState` (F4).
 
-**Output:** a validated `Feedback`.
+**Output:** a validated `Feedback`. Recovery and motivation are not asked, to keep the feedback short.
 
 > **Note:** the decision *what to change* is made in F4 by rules, never by the LLM. The LLM may only
 > describe the change afterwards.
@@ -298,6 +305,9 @@ set** instead (within the rep range; at the top of the range: no change).
 
 Only **one** load rule (1–6) is applied per cycle, and rule 1 always wins.
 
+The numbers (load steps, the 70 % restart load, the minor caps) are common training rules of thumb chosen
+to make the behaviour testable, not medical advice.
+
 ### 6.4 Global guardrails (checked by the filters against the Strategy's limits)
 
 An increase (+1 step or +1 set) is forbidden for an exercise if **any** of these holds:
@@ -322,7 +332,10 @@ Always:
 3. `LLMClient.explain_changes()` writes a two-sentence explanation of *what changed and why* (1 attempt).
    On failure → a templated sentence derived from the rule that fired.
 4. The CLI shows the updated plan (changed items marked), the explanation, the messages (e.g. the
-   INCOMPLETE_LOW hint) and — if `see_professional = true` — the text from §13.5.
+   INCOMPLETE_LOW hint) and — if `see_professional = true` — this text: *"You reported pain. We changed
+   the exercise and lowered the load. If the pain is sharp, in a joint, or still there at your next
+   session, stop training that area and see a doctor or physiotherapist. This app does not diagnose
+   injuries."*
 5. **Undo:** the user can choose "Undo last change" (or ask the agent, which calls `undo_last_change`).
    This undoes the **last `HistoryEntry`**: its Commands call `undo()` in reverse order, so the plan is
    exactly as it was before that feedback cycle. Calling undo again goes one more cycle back.
@@ -484,36 +497,3 @@ Scenario tests (run without a real LLM, using `FakeLLMClient`):
 | Any rule fires, then undo | plan identical to the state before that feedback cycle |
 | Any rule firing | ≤ +10 % weekly load and ≤ +1 set per exercise |
 | Filter raises an exception | no Command executed, plan unchanged |
-
----
-
-## 13. Assumptions and decisions
-
-1. ~~LLM drafts the plan; rules decide adaptations.~~ **Decided:** yes. The LLM never decides load changes.
-2. ~~RPE 1–10 as the only difficulty input?~~ **Decided:** yes, plus pain, completion and missed sessions.
-   Recovery/motivation are left out to keep the flow short (YAGNI).
-3. ~~Injury input?~~ **Decided:** regions from a fixed list + free text, which makes constraint compliance
-   checkable automatically. Text that matches no region goes to `injury_notes` (§3).
-4. ~~Plan length?~~ **Decided:** a **4-week plan**. The LLM drafts only **week 1**; the Strategy copies it
-   to weeks 2–4 and applies its progression rule (e.g. +1 rep per set per week). This keeps the LLM output
-   small (better validity with a local model), gives the Composite a real `Week` level, and keeps the
-   progression deterministic. Because this progression is built in, ON_TARGET feedback changes nothing.
-   Adaptation changes the logged session's exercises in the **remaining** sessions of the plan; completed
-   sessions are never changed. After week 4 the user is offered a new plan (F2 again with the same profile).
-5. ~~Pain wording?~~ **Decided:** pain is a recommendation and a flag; the app does not diagnose anything.
-   The CLI shows: *"You reported pain. We changed the exercise and lowered the load. If the pain is sharp,
-   in a joint, or still there at your next session, stop training that area and see a doctor or
-   physiotherapist. This app does not diagnose injuries."*
-6. ~~Exercise catalog owner?~~ **Decided:** **Rahul**, because the catalog feeds the safety filter and the
-   Strategies, which are his domain half. It is our own hand-curated JSON file (not model-generated), so
-   the safety filter is testable without a model:
-   - File: `resources/exercise_catalog.json` (not under `data/`, which `.gitignore` excludes because it
-     holds the user's saved profile and plans).
-   - Size: about 40–60 exercises, covering every movement pattern, every equipment option and all three
-     levels, so every profile has a non-empty allowed pool. A unit test checks this.
-   - Every entry has all fields from §2 (`required_equipment`, `contraindicated_regions`, `level`, …).
-   - `JsonCatalogLoader` (infrastructure) loads the file; the domain only receives the list of `Exercise`
-     objects.
-   - If AI helps to draft entries, it is logged in `AI_USAGE.md` and every entry is checked by hand.
-7. **Numbers are project assumptions**, not medical advice: the load steps, the 70 % restart load and
-   the minor caps are common training rules of thumb chosen to make the behaviour testable.
