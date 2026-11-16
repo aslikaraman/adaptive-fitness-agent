@@ -7,8 +7,9 @@ from typing import get_args
 
 import pytest
 
+from fitness_agent.domain.catalog import allowed_pool
 from fitness_agent.domain.models import (KNOWN_EQUIPMENT, KNOWN_REGIONS, LEVELS, Exercise,
-                                         MovementPattern)
+                                         MovementPattern, UserProfile)
 
 CATALOG_FILE = Path(__file__).resolve().parent.parent / "resources" / "exercise_catalog.json"
 
@@ -20,13 +21,11 @@ def fixture_catalog() -> list[Exercise]:
         return [Exercise.model_validate(entry) for entry in json.load(file)]
 
 
-def allowed_pool(catalog, equipment, injuries, level, minor=False):
-    """The exercises a profile may do: equipment available, not contraindicated, level not above."""
-    return [exercise for exercise in catalog
-            if set(exercise.required_equipment) <= set(equipment) | {"bodyweight"}
-            and not set(exercise.contraindicated_regions) & set(injuries)
-            and LEVELS.index(exercise.level) <= LEVELS.index(level)
-            and not (minor and exercise.level == "advanced")]
+def profile(level, equipment, injuries, minor=False) -> UserProfile:
+    """A profile for the pool tests."""
+    return UserProfile(age=16 if minor else 25, fitness_level=level, goal="strength",
+                       days_per_week=3, equipment=equipment,
+                       injuries=[{"region": region} for region in injuries])
 
 
 def test_catalog_size_and_unique_ids(catalog):
@@ -52,9 +51,19 @@ def test_timed_exercises_use_one_rep(catalog):
 def test_every_profile_has_a_non_empty_pool(catalog, level, item, injury, minor):
     """Every level x equipment option x (no injury or any one injury) x minor gets exercises."""
     injuries = [injury] if injury else []
-    assert allowed_pool(catalog, [item], injuries, level, minor)
+    assert allowed_pool(catalog, profile(level, [item], injuries, minor))
 
 
 def test_bodyweight_beginner_with_every_injury_still_has_exercises(catalog):
     """The worst case: no equipment, beginner, all seven regions injured."""
-    assert allowed_pool(catalog, ["bodyweight"], list(KNOWN_REGIONS), "beginner")
+    assert allowed_pool(catalog, profile("beginner", [], list(KNOWN_REGIONS)))
+
+
+def test_pool_filter_rules(catalog):
+    """Equipment, injuries, level and the minor rule each remove exercises."""
+    pool = {e.id for e in allowed_pool(catalog, profile("advanced", ["barbell"], ["knee"]))}
+    assert "barbell_deadlift" in pool          # advanced, barbell, no knee risk
+    assert "back_squat" not in pool            # knee risk
+    assert "goblet_squat" not in pool          # needs dumbbells
+    minor_pool = {e.id for e in allowed_pool(catalog, profile("advanced", ["barbell"], [], True))}
+    assert "barbell_deadlift" not in minor_pool  # advanced exercises are not for minors

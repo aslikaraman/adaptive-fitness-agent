@@ -214,7 +214,8 @@ is safe, omits the pattern and says so in the summary.
 **Trigger:** the user finishes (or skips) a session and chooses "Give feedback".
 **State:** `FeedbackState`.
 
-1. The user can describe the session in free text (e.g. "squats were brutal and my knee hurt, skipped
+1. The user first picks which planned session they did (the next planned sessions are offered).
+   Then they can describe the session in free text (e.g. "squats were brutal and my knee hurt, skipped
    Thursday"). The **LangChain agent** reads it and calls the `submit_feedback` tool with structured
    arguments. Its other tools are `get_profile`, `get_current_plan` and `undo_last_change`; no tool
    changes the plan directly.
@@ -225,8 +226,10 @@ is safe, omits the pattern and says so in the summary.
    - **Did you complete all sets?** — yes/no; if no, how many sets were done.
    - **Did you miss any planned session?** — number of missed sessions.
 3. Validation: `rpe ∈ 1..10`, `completed_sets ≤ planned_sets`, `missed_sessions ≥ 0`, region in the known
-   list. If the agent reports pain without a known region, the fixed region question is asked.
-4. The logged session gets `status = done`; the feedback is saved through `Storage`, linked to the session.
+   list. If the agent cannot produce a valid `Feedback` (e.g. pain without a known region), the four
+   fixed questions are asked.
+4. The feedback is saved through `Storage`, linked to the session. Marking the session `done` is part of
+   the adaptation (a Command), because the plan only changes through Commands.
 5. The state machine moves to `AdaptationState` (F4).
 
 **Output:** a validated `Feedback`. Recovery and motivation are not asked, to keep the feedback short.
@@ -450,12 +453,12 @@ The CLI passes every input to `CoachSession.handle(input)`; the current state ca
 
 | Service call | Flow | Purpose |
 |---|---|---|
-| `onboard(answers)` | F1 | Build and save the `UserProfile` |
-| `generate_plan()` | F2 | Create the `TrainingPlan` |
-| `show_plan()` | – | Current plan and coach summary |
-| `submit_feedback(text or answers)` | F3 → F4 | Feedback, then adaptation |
-| `undo_last_change()` | F4 | Undo the last `HistoryEntry` |
-| `show_history()` | – | List of executed changes and the rules that fired |
+| `OnboardingService.extract(answers)` | F1 | Read the profile from the free-text answers (retry rule) |
+| `OnboardingService.save(profile)` | F1 | Save the `UserProfile` |
+| `PlanService.generate(profile)` | F2 | Create, explain and save the `TrainingPlan` (retry rule, fallback) |
+| adaptation service: `adapt(feedback)` | F4 | Adapt the plan; return the lines to show |
+| adaptation service: `undo_last_change()` | F4 | Undo the last `HistoryEntry` |
+| adaptation service: `show_history()` | – | List of executed changes and the rules that fired |
 
 ---
 

@@ -19,6 +19,18 @@ markers = [
 source = ["fitness_agent"]
 
 # ---------------------------------------------------------------------------
+# pylint
+# ---------------------------------------------------------------------------
+[tool.pylint."messages control"]
+# Interfaces with one method (CatalogLoader.load, CoachAgent.interpret) are one-method
+# classes by design.
+disable = ["too-few-public-methods"]
+
+[tool.pylint.design]
+# CoachSession is the State Context: it holds its collaborators and the user's data.
+max-attributes = 10
+
+# ---------------------------------------------------------------------------
 # Layer rules (coupling metric). Run with:  lint-imports
 # ---------------------------------------------------------------------------
 [tool.importlinter]

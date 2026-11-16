@@ -19,6 +19,7 @@ LoadType = Literal["kg", "bw", "time"]
 KNOWN_EQUIPMENT: tuple[str, ...] = get_args(EquipmentItem)
 KNOWN_REGIONS: tuple[str, ...] = get_args(BodyRegion)
 LEVELS: tuple[str, ...] = get_args(FitnessLevel)
+GOALS: tuple[str, ...] = get_args(Goal)
 
 
 class Injury(BaseModel):

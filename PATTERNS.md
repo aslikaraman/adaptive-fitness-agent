@@ -110,7 +110,9 @@ made by deterministic code, so it can be tested without a model.
   times (Cut-and-Paste Programming).
 - **Why:** the parent class fixes the order of steps, and the subclasses implement one step.
 - **Where:** abstract `PlanCommand.execute(plan)` stores the `PlanMemento`, then calls `_apply(plan)`,
-  which each concrete Command implements; `undo()` is written once in `PlanCommand`.
+  which each concrete Command implements; `undo()` is written once in `PlanCommand`. The question
+  states use the same idea: `AskingState` fixes ask → validate → re-ask, and `OnboardingState` and
+  `FeedbackState` only add their questions and their next state.
 - **Trade-off:** a new Command only implements `_apply()` and cannot forget the Memento, but the
   Commands share a base class.
 
@@ -120,7 +122,7 @@ made by deterministic code, so it can be tested without a model.
   The app must still produce a correct result.
 - **Why:** the app should work with the model switched off.
 - **Where:** each structured LLM step gets at most 3 attempts, each retry re-prompted with the specific
-  error (retry loop in the application services); after the last failure a deterministic fallback
+  error (`with_retries()` in `application/retry.py`, used by `OnboardingService` and `PlanService`); after the last failure a deterministic fallback
   produces the result (fixed questions, rule-based plan, template text). See
   [FUNCTIONAL_FLOW.md](FUNCTIONAL_FLOW.md) §0.
 - **Trade-off:** the app never depends on the model, but every LLM step needs a non-LLM path.
