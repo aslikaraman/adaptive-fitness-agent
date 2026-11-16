@@ -1,7 +1,7 @@
-"""The LLMClient interface (agreed in step 7; owner: Asli).
+"""The LLMClient interface.
 
 The application layer depends only on this interface. OllamaAdapter
-(infrastructure, step 10) implements it; FakeLLMClient (tests) implements it
+(infrastructure) implements it; FakeLLMClient (tests) implements it
 for tests without a model. Each method makes exactly one model call; the retry
 loop is in the application services (FUNCTIONAL_FLOW.md §0).
 """

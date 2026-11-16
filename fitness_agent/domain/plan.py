@@ -1,8 +1,7 @@
-"""The TrainingPlan Composite and its Memento (stubs agreed in step 7; owner: Rahul).
+"""The TrainingPlan Composite and its Memento.
 
 TrainingPlan -> Week -> Session (composites) -> PlannedExercise (leaf). Every
-level offers total_volume(), duration() and scale_intensity(); the bodies are
-written in step 9.
+level offers total_volume(), duration() and scale_intensity().
 """
 
 from typing import Literal

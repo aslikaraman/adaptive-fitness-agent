@@ -1,9 +1,8 @@
-"""Plan Commands (stub agreed in step 7; owner: Rahul).
+"""Plan Commands.
 
 PlanCommand is a Template Method: execute() stores a Memento of the plan and
-then calls _apply(), which each concrete Command implements. undo() restores
-the Memento. The concrete Commands (SwapExerciseCommand, AdjustVolumeCommand,
-RescheduleCommand) are written in step 14.
+then calls _apply(), which each concrete Command (SwapExerciseCommand,
+AdjustVolumeCommand, RescheduleCommand) implements. undo() restores the Memento.
 """
 
 from abc import ABC, abstractmethod
@@ -15,6 +14,7 @@ class PlanCommand(ABC):
     """A change to a TrainingPlan that can be undone."""
 
     def __init__(self, reason: str) -> None:
+        """Create the command; reason names the rule that fired."""
         self.reason = reason
         self._plan: TrainingPlan | None = None
         self._memento: PlanMemento | None = None

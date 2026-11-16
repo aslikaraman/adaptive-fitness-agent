@@ -83,6 +83,9 @@ Feedback
   session_ref, rpe (1..10), pain (bool), pain_region?,
   all_sets_done (bool), completed_sets?, missed_sessions (0..n), note?
 
+PlanDraft (structured output of LLMClient.generate_plan(): week 1 only)
+  sessions[] ({day_of_week, focus, exercises[] {exercise_id, sets, reps, load, rest_s}})
+
 AdaptationContext (the data passed along the pipe)
   feedback, previous_feedback?, plan, profile, strategy (limits),
   commands[] (emitted so far), no_increase (bool), see_professional (bool), messages[]
@@ -170,7 +173,7 @@ is safe, omits the pattern and says so in the summary.
    What remains is the **allowed pool**. The LLM only ever sees this pool.
 
 4. **LLM draft.** `LLMClient.generate_plan()` (OllamaAdapter → `qwen3`, `with_structured_output`,
-   temperature 0) gets the profile, the skeleton and the allowed pool. The model returns a Pydantic
+   temperature 0) gets the profile, the skeleton written as prompt constraints (text) and the allowed pool. The model returns a Pydantic
    `PlanDraft` for **week 1** with concrete exercises, sets, reps and load. The plan covers **4 weeks**:
    the Strategy copies week 1 to weeks 2–4 and applies its progression rule (e.g. +1 rep per set per week).
    This keeps the LLM output small (better validity with a local model) and the progression deterministic.

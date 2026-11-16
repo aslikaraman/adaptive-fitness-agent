@@ -1,7 +1,6 @@
-"""Domain data models (stubs agreed in step 7; owner: Rahul).
+"""Domain data models.
 
-Field names follow FUNCTIONAL_FLOW.md §2. Validation rules beyond the basic
-ranges are added in step 9.
+Field names follow FUNCTIONAL_FLOW.md §2.
 """
 
 from typing import Literal
