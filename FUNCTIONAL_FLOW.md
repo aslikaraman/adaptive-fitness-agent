@@ -115,7 +115,7 @@ in `execute()` before changing anything and restores it in `undo()`. Because `he
 **Trigger:** first start (no saved profile), or the user chooses "Redo onboarding".
 **State:** `OnboardingState`.
 
-1. The CLI asks for six inputs: **age**, **fitness level**, **goal**, **available days/week**,
+1. `OnboardingState` asks for six inputs (the CLI shows the questions): **age**, **fitness level**, **goal**, **available days/week**,
    **available equipment**, **injuries/limitations**.
 2. Answers can be typed freely (e.g. "two dumbbells and a pull-up bar"). `LLMClient.extract_profile()`
    turns the text into the profile fields. This is the only LLM step here, and it only *reads* language.
@@ -139,7 +139,7 @@ in `execute()` before changing anything and restores it in `undo()`. Because `he
    **Unknown injury region:** the text is kept in `injury_notes`. It cannot be filtered automatically, so
    the plan summary repeats it and adds the "see a professional" hint (§6.5).
 
-   Extraction follows the retry rule (§0): after 3 failed attempts the CLI asks each field as a
+   Extraction follows the retry rule (§0): after 3 failed attempts `OnboardingState` asks each field as a
    fixed-choice question.
 4. The profile is saved through `Storage`.
 5. `OnboardingState` returns the next state → plan generation (F2).

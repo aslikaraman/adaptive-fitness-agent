@@ -23,7 +23,7 @@ layers, and `application` never imports `infrastructure` or `interface`.
 
 | Layer | Contains | May import |
 |---|---|---|
-| `domain/` | Pure Python models and rules: `UserProfile`, `Exercise`, `Feedback`, the `TrainingPlan` Composite, planning Strategies + `StrategyFactory`, `TrainingPlanBuilder`, the adaptation filters, Commands + `PlanMemento` | standard library, `pydantic` |
+| `domain/` | Pure Python models and rules: `UserProfile`, `Exercise`, `Feedback`, the `TrainingPlan` Composite, planning Strategies + `StrategyFactory`, `TrainingPlanBuilder`, the allowed-pool filter, the adaptation filters, Commands + `PlanMemento` | standard library, `pydantic` |
 | `application/` | Application services used by the states (incl. the LLM retry loop), the `CoachSession` State machine and its states, and the **interfaces** `LLMClient`, `CoachAgent`, `Storage`, `CatalogLoader` | `domain` |
 | `infrastructure/` | The **implementations** of those interfaces: `OllamaAdapter` (`LLMClient`), the LangChain agent (`CoachAgent`), `JsonStorage` (`Storage`), `JsonCatalogLoader` (`CatalogLoader`), plus the prompt templates | `application`, `domain`, LangChain, Ollama |
 | `interface/` | The thin CLI (shows state, reads input, no business logic) and `main.py`, the composition root | all layers |
@@ -84,4 +84,4 @@ A violation fails the test suite, so the layers cannot erode unnoticed. The numb
 | adaptation rule | new filter in `domain/` | business rule |
 | LLM provider (e.g. Groq) | new class in `infrastructure/` implementing `LLMClient`; switch it in `main.py` | external detail |
 | storage format | new class in `infrastructure/` implementing `Storage` | external detail |
-| CLI command | `interface/`, calling an application service | presentation only |
+| menu option or question | a state in `application/states.py`; the CLI only passes input to `CoachSession` | conversation flow |
