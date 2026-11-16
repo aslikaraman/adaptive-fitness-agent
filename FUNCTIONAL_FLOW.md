@@ -331,10 +331,6 @@ Always:
 
 ## 7. End-to-end overview
 
-> **Note on §7–§9:** these diagrams are design sketches made before the code. The final UML class and
-> sequence diagrams are drawn from the real code and checked against it (see PATTERNS.md); if a sketch
-> here no longer matches the code, it is updated or removed.
-
 ```text
   ┌──────────┐
   │  START   │
