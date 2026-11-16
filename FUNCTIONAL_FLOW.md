@@ -455,6 +455,7 @@ flowchart TD
 | **Builder** | §4.5 — `TrainingPlanBuilder` assembles the Composite step by step for two callers (LLM draft, fallback); `build()` runs the validation gate |
 | **Pipes & Filters** | §6.1 — `SafetyFilter → ScheduleFilter → LoadFilter`, common `process()` interface, `AdaptationContext` as data format |
 | **Command + Memento** | §6.5 — every change is a Command storing a Memento; undo restores the last feedback cycle |
+| **Template Method** | §6.5 — `PlanCommand.execute()` stores the Memento, then calls `_apply()`, which each Command implements |
 
 ---
 

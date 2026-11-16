@@ -55,6 +55,7 @@ pytest -m "not ollama"
 
 ## Project documents
 
+- [PATTERNS.md](PATTERNS.md) – the patterns we use, why, and the patterns we rejected
 - [ARCHITECTURE.md](ARCHITECTURE.md) – the four layers, the dependency rule and how it is checked
 - [FUNCTIONAL_FLOW.md](FUNCTIONAL_FLOW.md) – what the system does, step by step (onboarding → plan → feedback → adaptation)
 - [AI_USAGE.md](AI_USAGE.md) – log of every AI tool use (source for the AI Usage Cards)
