@@ -10,6 +10,7 @@ training plan, asks about past workouts and adapts the plan to the answers.
 
 - Python 3.11+ (we use 3.12)
 - [Ollama](https://ollama.com) running locally (free, no account needed)
+- About 8 GB free disk space: `qwen3` is a ~5 GB download, `qwen3:4b` ~2.5 GB
 
 ## Setup
 
@@ -28,6 +29,9 @@ ollama pull qwen3        # main model
 ollama pull qwen3:4b     # only used for the model comparison metric
 ```
 
+Ollama must be running before you start the app (it usually starts automatically after
+installation; otherwise run `ollama serve`). Check with `ollama list`.
+
 ## Running
 
 ```bash
@@ -41,6 +45,12 @@ _The application is still being built._
 ```bash
 pytest --cov          # tests, including the layer rules
 lint-imports          # layer rules only (see ARCHITECTURE.md)
+```
+
+Tests marked `ollama` need a running local Ollama. To run everything else without it:
+
+```bash
+pytest -m "not ollama"
 ```
 
 ## Project documents

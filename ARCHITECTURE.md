@@ -1,6 +1,8 @@
 # Architecture
 
 The application is split into four layers. Each layer is a subpackage of `fitness_agent/`.
+Class names below are the planned ones; this document is updated as the classes are written, so it
+always matches the code.
 
 ```mermaid
 flowchart TD

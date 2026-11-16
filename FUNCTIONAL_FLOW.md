@@ -65,7 +65,7 @@ UserProfile
 Exercise (catalog entry)
   id, name, movement_pattern (squat|hinge|push|pull|carry|core|cardio),
   required_equipment[], contraindicated_regions[],
-  is_compound (bool), default_rep_range, load_type (kg|bw|rpe|time), level
+  is_compound (bool), default_rep_range, load_type (kg|bw|time), level
 
 TrainingPlan (Composite root)
   weeks[], coach_summary (text), llm_generated (bool),
@@ -74,7 +74,7 @@ TrainingPlan (Composite root)
   └─ Week (Composite)          number (1..4), sessions[]
      └─ Session (Composite)    day_of_week, focus (e.g. "push"),
                                status (planned|done|missed|dropped), exercises[]
-        └─ PlannedExercise (Leaf)  exercise_id, sets, reps, load (kg | bodyweight | RPE | seconds),
+        └─ PlannedExercise (Leaf)  exercise_id, sets, reps, load (kg | bodyweight | seconds),
                                    rest_s, notes
 
   Every level implements: total_volume(), duration(), scale_intensity(factor)
@@ -169,8 +169,13 @@ is safe, omits the pattern and says so in the summary.
    `PlanDraft` for **week 1** with concrete exercises, sets, reps and load; the Strategy derives weeks 2–4
    from it with its progression rule (see §13.4).
 
-5. **Validation gate (Builder, always runs).** `TrainingPlanBuilder` turns the draft into the
-   `TrainingPlan` Composite; `build()` checks:
+5. **Step-wise construction + validation gate (Builder, always runs).** The `TrainingPlan` Composite is
+   never created in one go. It is assembled step by step through `TrainingPlanBuilder`:
+   `start_week(number)` → `add_session(day, focus)` → `add_exercise(exercise_id, sets, reps, load, rest_s)`
+   → … → `build()`. Two different callers direct the same steps: the plan service for the LLM draft
+   (step 4) and the Strategy for the fallback (step 6); the Strategy also adds weeks 2–4 through the same
+   steps. `build()` is the only way to get a `TrainingPlan`, so every plan is checked before anyone can
+   use it. `build()` checks:
    - *Schema complete* — required fields present, types correct, exercise ids exist in the catalog.
    - *Constraint compliance* — every exercise ∈ allowed pool (equipment + injury safe). **Hard fail.**
    - *Volume sanity* — sets × reps within the strategy's range; sessions ≤ `days_per_week`;
@@ -180,7 +185,7 @@ is safe, omits the pattern and says so in the summary.
    in total, schema errors included); then → **step 6**.
 
 6. **Deterministic fallback.** The strategy assembles the plan from the allowed pool with fixed selection
-   rules (no LLM), through the same Builder. Result is flagged `llm_generated = false`.
+   rules (no LLM), calling the same Builder steps. Result is flagged `llm_generated = false`.
 
 7. **Coach summary (LLM, optional).** `LLMClient.summarize_plan()` explains in plain text *why* this plan
    fits the profile (1 attempt). If it fails, a templated summary is used. Presentation only — it never
@@ -277,7 +282,6 @@ top of it.
 | `kg` | compound `squat`/`hinge` exercises: **+5 %**; all others and every exercise for minors: **+2.5 %**; rounded to the nearest 0.5 kg | **−10 %**, rounded to the nearest 0.5 kg |
 | `bw` | **+1 rep per set** up to the top of the rep range; at the top: **+1 set** | **−2 reps per set** (minimum 1 rep) |
 | `time` | **+10 %** duration, rounded to 5 s | **−10 %**, rounded to 5 s |
-| `rpe` | target RPE **+1** (maximum 9) | target RPE **−1** (minimum 5) |
 
 If a kg increase rounds to 0 kg or would break the +10 % guardrail (§6.4), the step becomes **+1 rep per
 set** instead (within the rep range; at the top of the range: no change).
@@ -326,6 +330,10 @@ Always:
 ---
 
 ## 7. End-to-end overview
+
+> **Note on §7–§9:** these diagrams are design sketches made before the code. The final UML class and
+> sequence diagrams are drawn from the real code and checked against it (see PATTERNS.md); if a sketch
+> here no longer matches the code, it is updated or removed.
 
 ```text
   ┌──────────┐
@@ -444,7 +452,7 @@ flowchart TD
 | **Adapter** | §3.2, §4.4 — `OllamaAdapter` implements `LLMClient`; the domain never imports LangChain |
 | **Strategy + Simple Factory** | §4.1–4.2 — one planning strategy per goal; `StrategyFactory` picks it |
 | **Composite** | §2 — `TrainingPlan → Week → Session → PlannedExercise`; same operations at every level |
-| **Builder** | §4.5 — `TrainingPlanBuilder` assembles the Composite and runs the validation gate |
+| **Builder** | §4.5 — `TrainingPlanBuilder` assembles the Composite step by step for two callers (LLM draft, fallback); `build()` runs the validation gate |
 | **Pipes & Filters** | §6.1 — `SafetyFilter → ScheduleFilter → LoadFilter`, common `process()` interface, `AdaptationContext` as data format |
 | **Command + Memento** | §6.5 — every change is a Command storing a Memento; undo restores the last feedback cycle |
 
