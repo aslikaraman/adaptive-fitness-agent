@@ -33,6 +33,14 @@ def test_duration_uses_time_load_for_timed_exercises():
     assert exercises[2].duration() == 2 * (30 + 30)
 
 
+def test_duration_is_summed_at_every_level():
+    """duration() works on every composite: session, week and plan."""
+    plan = make_plan()
+    session = plan.weeks[0].sessions[0]
+    expected = sum(exercise.duration() for exercise in session.exercises)
+    assert session.duration() == plan.weeks[0].duration() == plan.duration() == expected
+
+
 def test_scale_intensity_reaches_every_leaf():
     """One call on the plan scales every exercise, each by its own load type."""
     plan = make_plan()

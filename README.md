@@ -4,7 +4,7 @@ Team project for **Design Patterns UE (WS 2026/27, TU Graz)** – Example Projec
 an agentic AI fitness coach built with LangChain. It onboards the user, generates a
 training plan, asks about past workouts and adapts the plan to the answers.
 
-> Status: design phase. The application is not implemented yet; usage instructions will follow.
+> Status: implementation phase. The application is not runnable yet; usage instructions will follow.
 
 ## Requirements
 

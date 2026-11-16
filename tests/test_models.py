@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from fitness_agent.domain.models import Exercise, Feedback, UserProfile
+from fitness_agent.domain.models import Exercise, Feedback, Injury, UserProfile
 
 BASE = {"age": 25, "fitness_level": "beginner", "goal": "strength", "days_per_week": 3}
 
@@ -29,6 +29,12 @@ def test_profile_moves_unknown_injury_region_to_notes():
                                             {"region": "elbow", "note": "tennis elbow"}])
     assert [injury.region for injury in profile.injuries] == ["knee"]
     assert profile.injury_notes == ["elbow tennis elbow"]
+
+
+def test_profile_accepts_injury_objects():
+    """Injuries can be given as Injury objects, not only as dicts."""
+    profile = UserProfile(**BASE, injuries=[Injury(region="wrist")])
+    assert profile.injuries == [Injury(region="wrist")]
 
 
 def test_minor_is_derived_from_age():
