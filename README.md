@@ -40,5 +40,6 @@ pytest --cov
 
 ## Project documents
 
+- [FUNCTIONAL_FLOW.md](FUNCTIONAL_FLOW.md) – what the system does, step by step (onboarding → plan → feedback → adaptation)
 - [AI_USAGE.md](AI_USAGE.md) – log of every AI tool use (source for the AI Usage Cards)
 - [RESOURCES.md](RESOURCES.md) – external libraries, models and other resources
