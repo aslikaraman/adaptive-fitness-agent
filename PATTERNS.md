@@ -4,8 +4,8 @@ The patterns we use, why we use them, and the patterns we rejected on purpose.
 
 ## Governing rule
 
-**The LLM handles language, our code handles logic.** The LLM reads the user's words, drafts the
-week-1 plan and explains changes. Every decision (is the plan safe, does it change, by how much) is
+**The LLM handles language, our code handles logic.** The LLM reads the user's words, chooses the
+exercises for week 1 and explains changes; the training numbers come from our code. Every decision (is the plan safe, does it change, by how much) is
 made by deterministic code, so it can be tested without a model.
 
 ## Patterns we use

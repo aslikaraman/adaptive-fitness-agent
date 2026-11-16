@@ -85,6 +85,13 @@ def test_text_methods_return_the_text():
     assert adapter.summarize_plan(PROFILE, TrainingPlan()) == "Two sentences."
 
 
+def test_unreachable_model_in_a_text_call_raises_llm_error():
+    """A failing text call becomes LLMError, so the caller can use the template text."""
+    adapter = OllamaAdapter(chat_model=StubChat(error=httpx.ConnectError("refused")))
+    with pytest.raises(LLMError, match="ConnectError"):
+        adapter.summarize_plan(PROFILE, TrainingPlan())
+
+
 def test_empty_text_raises_llm_error():
     """An empty answer counts as a failure (the caller uses the template text)."""
     adapter = OllamaAdapter(chat_model=StubChat(result=AIMessage(content="  ")))
