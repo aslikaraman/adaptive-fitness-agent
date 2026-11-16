@@ -1,0 +1,14 @@
+# Development, test and metric tools
+-r requirements.txt
+
+# Tests
+pytest==9.2.0
+pytest-cov==7.1.0
+
+# Metrics and diagrams
+pylint==4.1.4          # includes pyreverse (class diagram from code)
+radon==6.0.1           # cyclomatic complexity
+cohesion==1.2.0        # class cohesion (LCOM)
+import-linter==2.16    # layer rules / coupling
+pydeps==3.0.9          # import graph
+interrogate==1.7.0     # docstring coverage
