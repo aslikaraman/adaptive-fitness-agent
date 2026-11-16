@@ -1,0 +1,4 @@
+# Runtime dependencies (pinned to the versions we tested with)
+langchain==1.5.0
+langchain-ollama==1.1.0
+pydantic==2.14.3
