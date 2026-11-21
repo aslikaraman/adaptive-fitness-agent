@@ -74,8 +74,9 @@ def summary_messages(profile: UserProfile, plan: TrainingPlan) -> Messages:
 
 
 def explanation_messages(changes: list[str]) -> Messages:
-    """Explain in two sentences what changed in the plan and why."""
+    """Explain in two sentences what changed in the plan and why, using only the given facts."""
     return _messages(
-        "In exactly two sentences, tell the user what changed in their plan and why:\n- "
-        + "\n- ".join(changes)
+        "In at most two short sentences, tell the user what changed in their plan and why. Use "
+        "only the facts below; do not add reasons, exercises or changes that are not listed.\n"
+        "Facts:\n- " + "\n- ".join(changes)
     )

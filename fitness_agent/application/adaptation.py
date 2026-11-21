@@ -9,8 +9,9 @@ the Commands already executed are undone, so the plan is never left half-changed
 from fitness_agent.application.catalog_loader import CatalogLoader
 from fitness_agent.application.llm_client import LLMClient, LLMError
 from fitness_agent.application.storage import Storage
-from fitness_agent.domain.adaptation import (COULD_NOT_ADAPT, AdaptationContext,
-                                             AdaptationPipeline, default_pipeline)
+from fitness_agent.domain.adaptation import (COULD_NOT_ADAPT, SEE_PROFESSIONAL,
+                                             AdaptationContext, AdaptationPipeline,
+                                             default_pipeline)
 from fitness_agent.domain.catalog import allowed_pool
 from fitness_agent.domain.commands import PlanCommand
 from fitness_agent.domain.models import Feedback
@@ -55,7 +56,11 @@ class AdaptationService:
         self._history.append((plan, context.commands))
         self._storage.save_plan(plan)
         changes = [c.reason for c in context.commands if c.reason != SESSION_DONE]
-        return context.messages + ([self._explain(changes)] if changes else [])
+        if not changes:
+            return context.messages
+        # the LLM gets the full facts (the filters' messages), not only the rule names
+        facts = [m for m in context.messages if m != SEE_PROFESSIONAL] + changes
+        return context.messages + [self._explain(changes, facts)]
 
     def undo_last_change(self) -> str:
         """Undo the last feedback cycle; return what was undone."""
@@ -94,11 +99,11 @@ class AdaptationService:
             return False
         return True
 
-    def _explain(self, changes: list[str]) -> str:
-        """The LLM's two sentences (1 attempt), else a template naming the rules."""
+    def _explain(self, changes: list[str], facts: list[str]) -> str:
+        """The LLM's two sentences from the facts (1 attempt), else a template naming the rules."""
         if self._llm is not None:
             try:
-                return self._llm.explain_changes(changes)
+                return self._llm.explain_changes(facts)
             except LLMError:
                 pass
         return "Changed: " + "; ".join(changes) + "."
