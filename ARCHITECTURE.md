@@ -26,7 +26,7 @@ layers, and `application` never imports `infrastructure` or `interface`.
 | `domain/` | Pure Python models and rules: `UserProfile`, `Exercise`, `Feedback`, the `TrainingPlan` Composite, planning Strategies + `StrategyFactory`, `TrainingPlanBuilder`, the allowed-pool filter, the adaptation filters, Commands + `PlanMemento` | standard library, `pydantic` |
 | `application/` | Application services used by the states (incl. the LLM retry loop), the `CoachSession` State machine and its states, and the **interfaces** `LLMClient`, `CoachAgent`, `Storage`, `CatalogLoader` | `domain` |
 | `infrastructure/` | The **implementations** of those interfaces: `OllamaAdapter` (`LLMClient`), the LangChain agent (`CoachAgent`), `JsonStorage` (`Storage`), `JsonCatalogLoader` (`CatalogLoader`), plus the prompt templates and `ollama_model.py` (the shared model settings) | `application`, `domain`, LangChain, Ollama |
-| `interface/` | Two thin views on the same `CoachSession`: the CLI (`cli.py`) and the web chat UI (`web.py`); `main.py`, the composition root | all layers |
+| `interface/` | Two thin views on the same `CoachSession`: the CLI (`cli.py`) and the web chat UI (`web.py`, with the plan panel `plan_view.py` and `style.css`); `main.py`, the composition root | all layers |
 
 `pydantic` is allowed in the domain because it only describes and validates data; it does no I/O and
 does not tie the domain to an LLM.
@@ -68,8 +68,9 @@ module picks an implementation, so tests can pass a `FakeLLMClient` or an in-mem
   application objects: `CoachSession` (the current phase of the conversation) and `AdaptationService`
   (the undo history, kept in memory for the running session).
 - **Layers are black boxes:** a layer is used only through its public classes and interfaces. The
-  application knows `LLMClient`, not `ChatOllama`; the CLI and the web UI know only
-  `CoachSession.handle()`.
+  application knows `LLMClient`, not `ChatOllama`; the CLI and the web UI send input only
+  through `CoachSession.handle()`; the web UI's plan panel (`plan_view.py`) reads `session.plan`
+  and `session.profile` for display and never changes them.
 
 ## How the rule is enforced
 
