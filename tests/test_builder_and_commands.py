@@ -125,3 +125,14 @@ def test_reschedule_of_a_missing_session_is_an_error():
     """The service turns this into "the plan could not be adapted"."""
     with pytest.raises(ValueError):
         RescheduleCommand("x", 2, 5).execute(make_plan())
+
+
+def test_a_kg_replacement_starts_at_70_percent_of_the_old_load():
+    """Pain swap (§6.3 rule 1): a kg replacement restarts at 70 % of the old load."""
+    from fitness_agent.domain.adaptation import SafetyFilter  # pylint: disable=import-outside-toplevel
+    by_id = {e.id: e for e in CATALOG}
+    planned = PlannedExercise(exercise_id="romanian_deadlift", load_type="kg", sets=3, reps=10,
+                              load=40, rest_s=90)
+    assert SafetyFilter.restart_load(None, planned, by_id["hip_thrust"]) == 28.0
+    assert SafetyFilter.reps_for(by_id["hip_thrust"], planned) == 10
+    assert SafetyFilter.reps_for(by_id["glute_bridge"], planned) == 10  # bottom of its range

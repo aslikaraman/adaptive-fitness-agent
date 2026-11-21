@@ -10,7 +10,7 @@ Everything else is the State machine's business: the *current state* calls the a
 services (generate plan, submit feedback, undo last change) and decides what the user is
 asked next. So the interface layer holds no ``UserProfile``, no ``TrainingPlan`` and no
 rules - it only shows state and reads input. A new menu option is a new state in
-``application/states.py``, not a new branch here (ARCHITECTURE.md, "Where do I put ...?").
+``application/states.py``, not a new branch here (ARCHITECTURE.md, "Where to put new code").
 
 The reader and the writer are injected, so the CLI can be driven by a script in the tests
 instead of a terminal.

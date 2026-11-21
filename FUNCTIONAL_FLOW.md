@@ -95,7 +95,7 @@ PlanMemento
   snapshot of the TrainingPlan before a change, plus the reason (which rule fired)
 
 HistoryEntry
-  one feedback cycle: feedback_ref, commands[] (in execution order)
+  one feedback cycle: the plan and its commands[] (in execution order)
 ```
 
 **Exercise catalog:** `resources/exercise_catalog.json`, our own hand-curated file (not model-generated)
@@ -133,7 +133,7 @@ in `execute()` before changing anything and restores it in `undo()`. Because `he
    | injuries | region ∈ known list, optional free-text note | unknown region → stored in `injury_notes` (see below) |
 
    **Minor caps** (`minor = true`): at most 4 sessions per week; no exercise with level `advanced`;
-   weekly sets at most the strategy's *beginner* maximum; kg increases always use the small step
+   at most 3 sets per exercise and 75 % of the start load; kg increases always use the small step
    (+2.5 %, §6.3).
 
    **Unknown injury region:** the text is kept in `injury_notes`. It cannot be filtered automatically, so
@@ -161,8 +161,9 @@ is safe, omits the pattern and says so in the summary.
    New goals are added by registering a new strategy class; the callers do not change.
 
 2. **Deterministic skeleton.** The strategy produces the *shape* of the plan:
-   - split template mapped onto `days_per_week` (e.g. 3 days → full body ×3; 4 days → upper/lower ×2),
-   - target sets per **movement pattern** per week for this goal and level,
+   - split template mapped onto `days_per_week` (e.g. strength: 3 days → push / pull / legs; 4 days →
+     upper / lower ×2),
+   - the movement patterns of each session's focus and the number of exercises per session,
    - rep ranges, rest times, session duration budget,
    - the limits used by the Builder and the adaptation guardrails (weekly sets min/max),
    - the weekly progression rule used to derive weeks 2–4 (step 4).
@@ -177,7 +178,8 @@ is safe, omits the pattern and says so in the summary.
    temperature 0) gets the profile, the skeleton written as prompt constraints (text) and the allowed pool. The model returns a Pydantic
    `PlanDraft` for **week 1**: per session a focus and the chosen exercise ids. The Strategy sets the days,
    sets, reps, load and rest from the skeleton, so the LLM never decides training numbers. The plan covers **4 weeks**:
-   the Strategy copies week 1 to weeks 2–4 and applies its progression rule (e.g. +1 rep per set per week).
+   the Strategy copies week 1 to weeks 2–4 and applies its progression rule (e.g. strength: +1 rep in
+   week 2, +1 rep or more load in week 3, a deload in week 4).
    This keeps the LLM output small (better validity with a local model) and the progression deterministic.
    After week 4 the user is offered a new plan (F2 again with the same profile).
 
@@ -190,8 +192,8 @@ is safe, omits the pattern and says so in the summary.
    use it. `build()` checks:
    - *Schema complete* — required fields present, types correct, exercise ids exist in the catalog.
    - *Constraint compliance* — every exercise ∈ allowed pool (equipment + injury safe). **Hard fail.**
-   - *Volume sanity* — sets × reps within the strategy's range; sessions ≤ `days_per_week`;
-     ≥ 1 rest day; total weekly sets within the strategy's min/max (and the minor caps).
+   - *Volume sanity* — sessions ≤ `days_per_week`, one session per day, ≥ 1 rest day; total weekly
+     sets within the strategy's min/max; valid numbers (≥ 1 set and rep, no negative load).
    - *Structure sanity* — no duplicate exercise inside a session; compounds first.
    On failure: re-prompt with the specific violation, following the retry rule (§0: at most 3 attempts
    in total, schema errors included); then → **step 6**.
@@ -330,16 +332,16 @@ Always:
 - An exercise is never both increased and decreased in the same cycle.
 - Sessions per week ≤ `days_per_week`; **at least one rest day** per week.
 - Decreases never go below 2 sets or 1 rep, and never below the strategy's weekly set minimum
-  (then the decrease is skipped and the CLI says so).
+  (then the exercise loses one load step instead of a set).
 
 ### 6.5 Output
 
 1. The Commands are executed in the order they were emitted; each stores a `PlanMemento` (snapshot + rule
    that fired) before it changes the plan. Together they form **one** `HistoryEntry`.
-2. The updated plan and the history are saved through `Storage`.
+2. The updated plan is saved through `Storage`; the history is kept in memory for the running session.
 3. `LLMClient.explain_changes()` writes a two-sentence explanation of *what changed and why* (1 attempt).
    On failure → a templated sentence derived from the rule that fired.
-4. The CLI shows the updated plan (changed items marked), the explanation, the messages (e.g. the
+4. The CLI shows the messages of the filters, the explanation, the updated plan (e.g. the
    INCOMPLETE_LOW hint) and — if `see_professional = true` — this text: *"You reported pain. We changed
    the exercise and lowered the load. If the pain is sharp, in a joint, or still there at your next
    session, stop training that area and see a doctor or physiotherapist. This app does not diagnose
@@ -416,7 +418,7 @@ sequenceDiagram
     S->>L: explain_changes(changes)
     L-->>S: 2-sentence rationale (or template)
     S-->>CLI: updated plan + rationale + messages (+ see_professional)
-    CLI-->>U: plan with changed items marked
+    CLI-->>U: messages, explanation, updated plan
 ```
 
 ---
@@ -458,7 +460,7 @@ The CLI passes every input to `CoachSession.handle(input)`; the current state ca
 | `PlanService.generate(profile)` | F2 | Create, explain and save the `TrainingPlan` (retry rule, fallback) |
 | adaptation service: `adapt(feedback)` | F4 | Adapt the plan; return the lines to show |
 | adaptation service: `undo_last_change()` | F4 | Undo the last `HistoryEntry` |
-| adaptation service: `show_history()` | – | List of executed changes and the rules that fired |
+| adaptation service: `history()` | – | List of executed changes and the rules that fired |
 
 ---
 

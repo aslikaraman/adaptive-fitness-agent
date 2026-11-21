@@ -139,8 +139,8 @@ made by deterministic code, so it can be tested without a model.
   without the LLM deciding plan changes.
 - **Why:** the agent can only act through our tools, so the decisions stay in our code.
 - **Where:** the LangChain agent in `infrastructure/`, behind the `CoachAgent` interface, with the tools
-  `get_profile`, `get_current_plan`, `submit_feedback`, `undo_last_change`. `submit_feedback` passes the
-  data to the adaptation pipeline.
+  `get_profile`, `get_current_plan`, `submit_feedback`, `undo_last_change`. `submit_feedback` hands the
+  Feedback back to the feedback state, which runs the adaptation pipeline.
 - **Trade-off:** new abilities are new tools, but tool calling is less reliable with a small local
   model, so the fixed questions remain as fallback.
 

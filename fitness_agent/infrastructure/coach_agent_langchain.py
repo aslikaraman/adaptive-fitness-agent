@@ -9,7 +9,7 @@ four tools:
     submit_feedback    - hand a Feedback to the adaptation pipeline
     undo_last_change   - take back the last adaptation
 
-The plan changes only through submit_feedback, and submit_feedback only reaches the
+submit_feedback only hands a Feedback to the app, and the app changes the plan only through the
 adaptation pipeline, so the agent never decides a training change itself (FUNCTIONAL_FLOW.md
 §0: the LLM handles language, our code handles logic).
 

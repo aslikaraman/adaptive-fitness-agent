@@ -225,7 +225,7 @@ def test_lower_back_pain_swaps_the_squat_for_a_safe_squat():
     §6.3 rule 1 says "the first catalog exercise with the same movement pattern ... in the
     allowed pool": here that is the bodyweight squat, so the sets stay and the reps start at
     the bottom of its range. (A kg replacement would start at 70 % of the old load - that is
-    asserted in ``tests/test_adaptation.py``.)
+    asserted in ``tests/test_builder_and_commands.py``.)
     """
     plan = plan_for(STRENGTH)
     service, storage = adaptation(STRENGTH, plan)
