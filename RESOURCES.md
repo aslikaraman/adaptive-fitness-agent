@@ -42,6 +42,13 @@ The development tools are only run on our code; they are not part of the applica
 | [Qwen3 8B](https://huggingface.co/Qwen/Qwen3-8B) (`qwen3`) | Apache-2.0 | Main LLM |
 | [Qwen3 4B](https://huggingface.co/Qwen/Qwen3-4B) (`qwen3:4b`) | Apache-2.0 | Model comparison for the validity metric |
 
+## Web UI assets
+
+| Resource | License | Used for |
+|---|---|---|
+| [Inter](https://fonts.google.com/specimen/Inter) font, loaded from Google Fonts | SIL Open Font License 1.1 | Text of the web UI |
+| Coach, user and button icons (`fitness_agent/interface/assets/*.svg`) | Own work (drawn with AI help, see [AI_USAGE.md](AI_USAGE.md)) | Chat avatars and quick-reply buttons |
+
 ## Other tools
 
 | Tool | Used for |

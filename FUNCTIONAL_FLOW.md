@@ -159,7 +159,7 @@ is safe, omits the pattern and says so in the summary.
 
 **Input:** validated `UserProfile`. **State:** `PlanReviewState` shows the result.
 
-1. **Strategy selection (Simple Factory).** `StrategyFactory.create(profile)` returns one of
+1. **Strategy selection (Factory Method).** `StrategyFactory.create(profile)` returns one of
    `StrengthStrategy`, `FatLossStrategy`, `EnduranceStrategy`, chosen by `profile.goal`.
    New goals are added by registering a new strategy class; the callers do not change.
 
@@ -474,7 +474,7 @@ The CLI passes every input to `CoachSession.handle(input)`; the current state ca
 | **Layers** | §1 — interface / application / domain / infrastructure; dependencies point inward; `interface/main.py` composes the layers |
 | **State** | §3–§6 — `OnboardingState`, `PlanReviewState`, `FeedbackState`, `AdaptationState`; each returns the next state |
 | **Adapter** | §3.2, §4.4 — `OllamaAdapter` implements `LLMClient`; the domain never imports LangChain |
-| **Strategy + Simple Factory** | §4.1–4.2 — one planning strategy per goal; `StrategyFactory` picks it |
+| **Strategy + Factory Method** | §4.1–4.2 — one planning strategy per goal; `StrategyFactory` picks it |
 | **Composite** | §2 — `TrainingPlan → Week → Session → PlannedExercise`; same operations at every level |
 | **Builder** | §4.5 — `TrainingPlanBuilder` assembles the Composite step by step for two callers (LLM draft, fallback); `build()` runs the validation gate |
 | **Pipes & Filters** | §6.1 — `SafetyFilter → ScheduleFilter → LoadFilter`, common `process()` interface, `AdaptationContext` as data format |

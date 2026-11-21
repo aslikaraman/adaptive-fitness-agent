@@ -19,7 +19,9 @@ visible in the demo (PATTERNS.md, *MVC*).
 A message is shown at once together with a "Coach is thinking" bubble with a spinner; the
 reply replaces the bubble in a second step. So the slow LLM steps (about 1-2 minutes for a
 plan with a local model on the CPU) are visible in the chat itself, while the input and the
-Send button are locked.
+Send button are locked. This answers the two "common issues" of the GUI lecture: the user always
+gets feedback ("I clicked and nothing happened"), and the page stays responsive because Gradio
+runs each handler in a worker thread, not in the thread that draws the page.
 
 Run with:  python -m fitness_agent.interface.web        (then open http://localhost:7860)
 """

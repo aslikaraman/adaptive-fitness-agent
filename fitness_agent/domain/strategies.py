@@ -1,4 +1,4 @@
-"""Planning Strategies, chosen by a Simple Factory.
+"""Planning Strategies, created by a Factory Method.
 
 A PlanningStrategy holds the rules of one goal (FUNCTIONAL_FLOW.md §4.2): the session days,
 the prompt constraints, the training numbers for each exercise, the weekly set limits, the
@@ -427,10 +427,11 @@ class FatLossStrategy(SplitStrategy):
 
 
 class StrategyFactory:
-    """Simple Factory: returns the Strategy for the profile's goal.
+    """Factory Method (lecture: "some means - method or own class - to create the actual
+    object somewhere else"): returns the Strategy for the profile's goal.
 
     It is the one place that knows which concrete Strategy belongs to which goal, so a new
-    goal is a new Strategy class plus one line here (PATTERNS.md: "Simple Factory").
+    goal is a new Strategy class plus one line here (PATTERNS.md: "Factory Method").
     """
 
     STRATEGIES: dict[str, type[SplitStrategy]] = {

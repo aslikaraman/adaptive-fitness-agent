@@ -33,7 +33,7 @@ def numbers(plan, week):
                                             ("fat_loss", FatLossStrategy),
                                             ("endurance", EnduranceStrategy)])
 def test_the_factory_returns_the_strategy_of_the_goal(goal, strategy):
-    """Simple Factory: one lookup from goal to Strategy."""
+    """Factory Method: one lookup from goal to Strategy."""
     assert isinstance(StrategyFactory().create(profile(goal)), strategy)
 
 

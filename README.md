@@ -41,6 +41,23 @@ python -m fitness_agent.interface.web      # web chat UI, then open http://local
 
 Your profile, plan and feedback are saved in `data/`. Without a running Ollama the app still
 works: it asks fixed questions instead of reading free text and builds the plan with fixed rules.
+Delete `data/` to start again as a new user.
+
+## Using the app
+
+1. **Onboarding.** Answer six questions in your own words (age, fitness level, goal, training days,
+   equipment, injuries). A bare "yes" to the injury question gets a follow-up about the body part.
+   The coach then lists your answers: type `yes` to build the plan, or the number of an answer to
+   change it. Building the plan takes 1-2 minutes on a CPU.
+2. **Your plan.** A 4-week plan with a lighter week 4. The web UI shows it in the panel on the
+   right, one tab per week; the CLI prints it.
+3. **Log a workout** (web: button, CLI: `1`). Choose the session you did, then describe how it
+   went, e.g. "Squats were an 8/10 and my knee hurt a bit". The plan adapts by fixed rules (load
+   up or down, a safer exercise after pain, a missed session moved), and the coach explains why.
+4. **Undo last change** (web: button, shown after a change; CLI: `3`) restores the plan as it was
+   before the last workout log.
+5. **New plan** (web: button, CLI: `2`) starts the onboarding again; **Quit** (CLI: `q`) ends the
+   session. The plan stays saved.
 
 ## Running the tests
 

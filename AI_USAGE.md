@@ -19,6 +19,14 @@ all files repeatedly against each other, the plan and the assignment slides and 
 inconsistencies it found. I approved every change before it was committed; the results are
 used in the repository and in our project plan document.
 
+**2026-11-21 – Claude Code (Claude Opus 5.5).** I used Claude Code to integrate Rahul's code for
+steps 12-15 and to write the parts it still needed, to set up the web chat UI with Gradio, and to
+test the app against the real qwen3 model. It added unit, scenario and integration tests and
+measured the coverage. Based on my own test runs, it redesigned the web UI to be more user-friendly
+and improved the onboarding (a confirmation step and a follow-up question about injuries). It also
+checked all documents against the code and the lecture slides and aligned PATTERNS.md with the
+lecture's pattern format and names. I approved every change before it was committed.
+
 ## Rahul
 
 | Date | Tool | What we asked | What we used the result for |
