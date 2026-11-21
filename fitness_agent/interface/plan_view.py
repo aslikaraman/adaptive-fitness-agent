@@ -1,4 +1,4 @@
-"""The side panel of the web UI: the current plan as HTML cards (presentation only).
+"""The side panel of the web UI: the current plan as HTML (presentation only).
 
 It reads the TrainingPlan and the UserProfile that the session holds and turns them into
 markup; it never changes them. The coach's rules stay in the application and domain layers.
@@ -6,11 +6,12 @@ markup; it never changes them. The coach's rules stay in the application and dom
 
 from html import escape
 
+from fitness_agent.application.text import WEEKDAYS, readable
 from fitness_agent.domain.models import UserProfile
-from fitness_agent.domain.plan import PlannedExercise, Session, TrainingPlan, Week
+from fitness_agent.domain.plan import PlannedExercise, Session, TrainingPlan
 
-WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 STATUS_LABELS = {"planned": "Planned", "done": "Done", "missed": "Missed", "dropped": "Dropped"}
+WEEKS = 4  # a plan has four weeks (Week.number is 1-4); one tab each
 GOAL_LABELS = {"strength": "💪 Strength", "fat_loss": "🔥 Fat loss", "endurance": "🏃 Endurance"}
 
 HOW_IT_WORKS = """
@@ -30,9 +31,18 @@ HOW_IT_WORKS = """
 """
 
 
+NEW_PROFILE = """
+<div class="fa-panel fa-empty">
+  <h3>Setting up your new plan</h3>
+  <p class="fa-summary">Answer the coach's questions in the chat. Your new 4-week plan appears
+  here as soon as it is ready; the old plan is replaced.</p>
+</div>
+"""
+
+
 def exercise_name(exercise_id: str) -> str:
     """"goblet_squat" -> "Goblet squat"."""
-    return exercise_id.replace("_", " ").capitalize()
+    return readable(exercise_id)
 
 
 def dose(exercise: PlannedExercise) -> str:
@@ -61,19 +71,21 @@ def _session_card(session: Session) -> str:
     return (f'<div class="fa-session fa-{session.status}">'
             f'<div class="fa-session-head"><span class="fa-day">'
             f'{WEEKDAYS[session.day_of_week - 1]}</span>'
-            f'<span class="fa-focus">{escape(exercise_name(session.focus))}</span>'
+            f'<span class="fa-focus">{escape(readable(session.focus))}</span>'
             f'<span class="fa-badge">{STATUS_LABELS.get(session.status, session.status)}</span>'
             f'</div><ul>{rows}</ul></div>')
 
 
-def _week(week: Week, is_current: bool) -> str:
-    """One collapsible week; the current week is open."""
+def render_week(plan: TrainingPlan | None, number: int) -> str:
+    """The training days of one week (one tab of the panel)."""
+    week = next((w for w in plan.weeks if w.number == number), None) if plan else None
+    if week is None:
+        return ""
     done = sum(s.status == "done" for s in week.sessions)
-    label = " · this week" if is_current else ""
+    note = " · this is your current week" if number == current_week(plan) else ""
     cards = "".join(_session_card(s) for s in week.sessions)
-    return (f'<details class="fa-week"{" open" if is_current else ""}><summary>'
-            f'<b>Week {week.number}</b>{label}<span class="fa-count">{done}/{len(week.sessions)}'
-            f' done</span></summary>{cards}</details>')
+    return (f'<div class="fa-week-head">{done} of {len(week.sessions)} sessions done{note}'
+            f'</div>{cards}')
 
 
 def _profile_chips(profile: UserProfile | None) -> str:
@@ -87,8 +99,8 @@ def _profile_chips(profile: UserProfile | None) -> str:
         f'<span class="fa-chip">{escape(c)}</span>' for c in chips) + "</div>"
 
 
-def render_plan(plan: TrainingPlan | None, profile: UserProfile | None) -> str:
-    """The whole side panel: progress, profile, coach summary and the weeks."""
+def render_header(plan: TrainingPlan | None, profile: UserProfile | None) -> str:
+    """The top of the panel: progress, profile and coach summary (or how the app works)."""
     if plan is None or not plan.weeks:
         return HOW_IT_WORKS
     sessions = [s for w in plan.weeks for s in w.sessions]
@@ -96,10 +108,8 @@ def render_plan(plan: TrainingPlan | None, profile: UserProfile | None) -> str:
     percent = round(100 * done / len(sessions)) if sessions else 0
     summary = (f'<p class="fa-summary">{escape(plan.coach_summary)}</p>'
                if plan.coach_summary else "")
-    now = current_week(plan)
-    weeks = "".join(_week(w, w.number == now) for w in plan.weeks)
     return (f'<div class="fa-panel"><h3>Your training plan</h3>{_profile_chips(profile)}'
             f'<div class="fa-progress"><div class="fa-progress-text"><span>{done} of '
             f'{len(sessions)} sessions done</span><b>{percent} %</b></div>'
             f'<div class="fa-bar"><div style="width:{percent}%"></div></div></div>'
-            f'{summary}{weeks}</div>')
+            f'{summary}</div>')

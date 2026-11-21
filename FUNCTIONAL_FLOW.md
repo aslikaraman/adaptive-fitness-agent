@@ -116,7 +116,10 @@ in `execute()` before changing anything and restores it in `undo()`. Because `he
 **State:** `OnboardingState`.
 
 1. `OnboardingState` asks for six inputs (the CLI shows the questions): **age**, **fitness level**, **goal**, **available days/week**,
-   **available equipment**, **injuries/limitations**.
+   **available equipment**, **injuries/limitations**. A bare "yes" to the injury question gets one
+   follow-up question (which body part, what happens), so the injury can be matched to a region.
+   Before the LLM reads anything, the answers are shown as a numbered list: "yes" goes on, a
+   number asks that question again. A wrong answer therefore never starts the slow plan generation.
 2. Answers can be typed freely (e.g. "two dumbbells and a pull-up bar"). `LLMClient.extract_profile()`
    turns the text into the profile fields. This is the only LLM step here, and it only *reads* language.
 3. Validation runs deterministically on the result (Pydantic model + rules below), no matter whether the

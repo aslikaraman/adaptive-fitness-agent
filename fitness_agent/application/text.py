@@ -1,6 +1,18 @@
 """Plain-text descriptions the states show to the user."""
 
-from fitness_agent.domain.plan import PlannedExercise, TrainingPlan
+from fitness_agent.domain.plan import PlannedExercise, Session, TrainingPlan
+
+WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+
+def readable(name: str) -> str:
+    """"goblet_squat" -> "Goblet squat", "push" -> "Push"."""
+    return name.replace("_", " ").capitalize()
+
+
+def describe_session(week: int, session: Session) -> str:
+    """One training day, e.g. "Week 1 · Mon · Push"."""
+    return f"Week {week} · {WEEKDAYS[session.day_of_week - 1]} · {readable(session.focus)}"
 
 
 def describe_exercise(exercise: PlannedExercise) -> str:

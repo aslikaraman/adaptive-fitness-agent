@@ -4,8 +4,8 @@ import pytest
 
 from fitness_agent.application.session import CoachSession
 from fitness_agent.application.text import describe_plan
-from fitness_agent.application.states import (AdaptationState, FeedbackState, OnboardingState,
-                                              PlanReviewState)
+from fitness_agent.application.states import (INJURY_DETAILS, AdaptationState, FeedbackState,
+                                              OnboardingState, PlanReviewState)
 from fitness_agent.domain.models import Feedback, UserProfile
 from fitness_agent.domain.plan import PlannedExercise, Session, TrainingPlan, Week
 from tests.fakes import FakeAgent, InMemoryStorage
@@ -65,6 +65,10 @@ class FakeAdaptation:
         self.undos += 1
         return "Undone: test change"
 
+    def history(self):
+        """One entry per adapted feedback."""
+        return self.adapted
+
 
 def make_session(storage=None, onboarding=None, agent=None):
     """A CoachSession with fakes; the returned list holds every adapted feedback."""
@@ -87,10 +91,89 @@ def test_new_user_starts_with_onboarding_and_gets_a_plan():
     onboarding = FakeOnboarding(PROFILE)
     session, _ = make_session(onboarding=onboarding)
     assert "How old are you?" in session.start()
-    output = answer_all(session, ["25", "beginner", "strength", "3", "dumbbells", "none"])
+    output = answer_all(session, ["25", "beginner", "strength", "3", "dumbbells", "none", "yes"])
     assert isinstance(session.state, PlanReviewState)
     assert onboarding.saved == PROFILE and session.profile == PROFILE
     assert "Week 1" in output and "1) Give feedback" in output
+
+
+class RecordingOnboarding(FakeOnboarding):
+    """Remembers the answer text it was asked to read."""
+
+    def extract(self, answers):
+        """Record the text, return the fixed profile."""
+        self.answers = answers  # pylint: disable=attribute-defined-outside-init
+        return self.profile
+
+
+def test_a_bare_yes_to_injuries_asks_which_body_part():
+    """"yes" alone gets a follow-up; its answer goes to the LLM with the other answers."""
+    onboarding = RecordingOnboarding(PROFILE)
+    session, _ = make_session(onboarding=onboarding)
+    session.start()
+    output = answer_all(session, ["25", "beginner", "strength", "3", "dumbbells", "yes"])
+    assert output == INJURY_DETAILS.text and isinstance(session.state, OnboardingState)
+    session.handle("my knee hurts when I squat")
+    session.handle("yes")
+    assert isinstance(session.state, PlanReviewState)
+    assert f"{INJURY_DETAILS.text} my knee hurts when I squat" in onboarding.answers
+
+
+def test_a_described_injury_or_no_needs_no_follow_up():
+    """"no" or a description goes straight to the plan."""
+    for answer in ("no", "my left knee"):
+        session, _ = make_session()
+        session.start()
+        answer_all(session, ["25", "beginner", "strength", "3", "dumbbells", answer, "yes"])
+        assert isinstance(session.state, PlanReviewState)
+
+
+def test_the_answers_are_shown_before_the_llm_reads_them():
+    """After the last answer the user sees a numbered list; nothing is extracted yet."""
+    onboarding = RecordingOnboarding(PROFILE)
+    session, _ = make_session(onboarding=onboarding)
+    session.start()
+    output = answer_all(session, ["25", "beginner", "strength", "3", "dumbbells", "none"])
+    assert output.startswith("Here is what you told me:")
+    assert "6) Do you have any injuries or limitations? → none" in output
+    assert "Type yes to build your plan" in output
+    assert not hasattr(onboarding, "answers") and isinstance(session.state, OnboardingState)
+
+
+def test_a_wrong_answer_can_be_changed_before_the_plan_is_built():
+    """The equipment typed as injury answer: "6" asks the injury question again."""
+    onboarding = RecordingOnboarding(PROFILE)
+    session, _ = make_session(onboarding=onboarding)
+    session.start()
+    answer_all(session, ["25", "beginner", "strength", "3", "dumbbells",
+                         "dumbbells and resistance bands"])
+    assert session.handle("6") == "Do you have any injuries or limitations?"
+    output = session.handle("no")
+    assert "6) Do you have any injuries or limitations? → no" in output
+    assert "dumbbells and resistance bands" not in output
+    session.handle("yes")
+    assert isinstance(session.state, PlanReviewState)
+    assert "Do you have any injuries or limitations? no" in onboarding.answers
+
+
+def test_changing_a_yes_injury_to_no_drops_the_old_details():
+    """The follow-up answer belongs to the old injury answer."""
+    onboarding = RecordingOnboarding(PROFILE)
+    session, _ = make_session(onboarding=onboarding)
+    session.start()
+    answer_all(session, ["25", "beginner", "strength", "3", "dumbbells", "yes", "sore knee",
+                         "6", "no", "yes"])
+    assert "sore knee" not in onboarding.answers
+
+
+def test_an_unclear_confirmation_is_asked_again():
+    """Only yes or a valid number is accepted."""
+    session, _ = make_session()
+    session.start()
+    answer_all(session, ["25", "beginner", "strength", "3", "dumbbells", "none"])
+    assert session.handle("maybe").startswith("Please type yes, or a number from 1 to 6.")
+    assert session.handle("9").startswith("Please type yes, or a number from 1 to 6.")
+    assert isinstance(session.state, OnboardingState)
 
 
 def test_failed_extraction_switches_to_fixed_questions_and_re_asks():
@@ -98,7 +181,7 @@ def test_failed_extraction_switches_to_fixed_questions_and_re_asks():
     onboarding = FakeOnboarding(profile=None)
     session, _ = make_session(onboarding=onboarding)
     session.start()
-    output = answer_all(session, ["x"] * 6)
+    output = answer_all(session, ["x"] * 6 + ["yes"])
     assert "Age (14-90)?" in output
     assert "whole number from 14 to 90" in session.handle("12")
     answer_all(session, ["30", "intermediate", "fat loss", "4", "dumbbells, rowing machine",
@@ -235,3 +318,12 @@ def test_undo_from_the_menu_shows_the_result_and_the_plan():
     output = session.handle("3")
     assert "Undone: test change" in output and "Week 1" in output
     assert session.adaptation.undos == 1 and isinstance(session.state, PlanReviewState)
+
+
+def test_the_session_choice_lists_one_day_per_line_with_weekday_and_focus():
+    """Readable choices: "1) Week 1 · Mon · Full body", each on its own line."""
+    session, _ = make_session(InMemoryStorage(PROFILE, make_plan()))
+    session.start()
+    assert session.handle("1") == ("Which session did you do?\n"
+                                   "1) Week 1 · Mon · Full body\n"
+                                   "2) Week 1 · Thu · Full body")

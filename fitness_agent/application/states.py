@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from fitness_agent.application.llm_client import LLMError
-from fitness_agent.application.text import describe_plan
+from fitness_agent.application.text import describe_plan, describe_session
 from fitness_agent.domain.models import GOALS, KNOWN_REGIONS, LEVELS, Feedback, UserProfile
 
 if TYPE_CHECKING:
@@ -147,6 +147,14 @@ ONBOARDING_QUESTIONS = (
     Question("equipment", "What equipment do you have?"),
     Question("injuries", "Do you have any injuries or limitations?"),
 )
+# asked after a bare "yes" to the injury question, so the plan can leave out the right exercises
+INJURY_DETAILS = Question(
+    "injury_details", "Where does it hurt or what is limited? Name the body part (knee, shoulder, "
+                      "lower back, wrist, ankle, neck, hip or another one) and what happens, "
+                      "e.g. \"my knee hurts when I squat\".")
+BARE_YES = ("y", "yes", "yeah", "yep", "sure", "i do", "yes i do")
+CONFIRMED = (*BARE_YES, "ok", "okay", "correct", "right")
+CONFIRM = "confirm"
 
 FIXED_ONBOARDING_QUESTIONS = (
     Question("age", "Age (14-90)?", _integer(14, 90)),
@@ -161,22 +169,68 @@ FIXED_ONBOARDING_QUESTIONS = (
 
 
 class OnboardingState(AskingState):
-    """F1: the six onboarding questions, read by the LLM; fixed questions as the fallback."""
+    """F1: the six onboarding questions, read by the LLM; fixed questions as the fallback.
+
+    Before the (slow) LLM reads the free-text answers, the user sees them and confirms them or
+    changes one, so a wrong answer never starts the plan generation.
+    """
 
     def __init__(self) -> None:
-        """Start in free-text mode."""
+        """Start in free-text mode, nothing confirmed yet."""
         super().__init__()
         self._fixed = False
+        self._confirmed = False
 
     def prepare(self, session: CoachSession) -> CoachState | None:
         """Ask the six free-text questions."""
         session.say("Let's set up your profile.")
         self.ask_later(*ONBOARDING_QUESTIONS)
 
+    def after_answer(self, session: CoachSession, key: str, value: Any) -> None:
+        """A bare "yes" to the injury question gets a follow-up (which body part, what
+        happens); at the confirmation, a number asks that question again."""
+        if self._fixed:
+            return
+        if key == "injuries":
+            self.answers.pop(INJURY_DETAILS.key, None)  # a new answer replaces the old details
+            if str(value).strip().lower().rstrip(".!") in BARE_YES:
+                self.ask_next(INJURY_DETAILS)
+        elif key == CONFIRM:
+            if value:
+                self.ask_next(self._answered()[value - 1])
+            else:
+                self._confirmed = True
+
+    def _answered(self) -> list[Question]:
+        """The free-text questions answered so far, in the order they were asked."""
+        return [q for q in (*ONBOARDING_QUESTIONS, INJURY_DETAILS) if q.key in self.answers]
+
+    def _confirmation(self) -> Question:
+        """The answers as a numbered list: yes (0) or the number of the answer to change."""
+        answered = self._answered()
+        summary = "\n".join(f"{n}) {q.text} → {self.answers[q.key]}"
+                            for n, q in enumerate(answered, start=1))
+
+        def parse(text: str) -> int:
+            """0 for yes, else the number of the answer to change."""
+            value = text.strip().lower().rstrip(".!")
+            if value in CONFIRMED:
+                return 0
+            if value.isdigit() and 1 <= int(value) <= len(answered):
+                return int(value)
+            raise ValueError(f"Please type yes, or a number from 1 to {len(answered)}.")
+
+        return Question(CONFIRM, "Here is what you told me:\n" + summary + "\nType yes to build "
+                        "your plan, or the number of an answer to change it.", parse)
+
     def finish(self, session: CoachSession) -> CoachState:
-        """Read the answers with the LLM; if that fails, switch to the fixed questions."""
+        """Confirm the answers, read them with the LLM; if that fails, switch to the fixed
+        questions."""
         if not self._fixed:
-            answers = "\n".join(f"{q.text} {self.answers[q.key]}" for q in ONBOARDING_QUESTIONS)
+            if not self._confirmed:
+                self.ask_later(self._confirmation())
+                return self
+            answers = "\n".join(f"{q.text} {self.answers[q.key]}" for q in self._answered())
             profile = session.onboarding.extract(answers)
             if profile is None:
                 self._fixed = True
@@ -184,6 +238,8 @@ class OnboardingState(AskingState):
                 self.ask_later(*FIXED_ONBOARDING_QUESTIONS)
                 return self
         else:
+            for key in (INJURY_DETAILS.key, CONFIRM):
+                self.answers.pop(key, None)
             profile = UserProfile(**{**self.answers, "injuries": [
                 {"region": region} for region in self.answers["injuries"]]})
         session.onboarding.save(profile)
@@ -194,6 +250,7 @@ class OnboardingState(AskingState):
 
 
 MENU = "What next? 1) Give feedback  2) New plan (redo onboarding)  3) Undo last change  q) Quit"
+CHOOSE_AGAIN = "Please choose 1, 2, 3 or q. "
 
 
 class PlanReviewState(CoachState):
@@ -218,7 +275,7 @@ class PlanReviewState(CoachState):
         if choice == "q":
             session.finish()
             return self
-        session.say("Please choose 1, 2, 3 or q. " + MENU)
+        session.say(CHOOSE_AGAIN + MENU)
         return self
 
 
@@ -239,9 +296,9 @@ class FeedbackState(AskingState):
         if not self._choices:
             session.say("All sessions are done. Choose 2 for a new plan.")
             return PlanReviewState()
-        options = "  ".join(f"{i}) week {w} day {s.day_of_week} ({s.focus})"
+        options = "\n".join(f"{i}) {describe_session(w, s)}"
                             for i, (w, s) in enumerate(self._choices, start=1))
-        self.ask_later(Question("session", f"Which session did you do? {options}",
+        self.ask_later(Question("session", f"Which session did you do?\n{options}",
                                 _integer(1, len(self._choices))))
         return None
 
