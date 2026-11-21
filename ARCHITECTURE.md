@@ -58,6 +58,19 @@ as it is instantiated.
 application services and the `CoachSession` through their constructors, and starts the CLI. No other
 module picks an implementation, so tests can pass a `FakeLLMClient` or an in-memory storage instead.
 
+## The other implementation issues of the Layers slide
+
+- **Skip layers?** Only downward: infrastructure and interface also use the domain models directly
+  (e.g. `JsonStorage` saves a `TrainingPlan`), because the models are plain data. An upward import is
+  never allowed, and the layer contract checks it.
+- **Stateless or stateful?** The domain rules (Strategies, filters, Builder) keep no state between calls.
+  The state lives in the data (`TrainingPlan`, `UserProfile`), in `Storage` (the JSON files) and in two
+  application objects: `CoachSession` (the current phase of the conversation) and `AdaptationService`
+  (the undo history, kept in memory for the running session).
+- **Layers are black boxes:** a layer is used only through its public classes and interfaces. The
+  application knows `LLMClient`, not `ChatOllama`; the CLI and the web UI know only
+  `CoachSession.handle()`.
+
 ## How the rule is enforced
 
 The rule is checked automatically by [import-linter](https://github.com/seddonym/import-linter); the

@@ -54,7 +54,9 @@ made by deterministic code, so it can be tested without a model.
   `EnduranceStrategy`. `StrategyFactory.create(profile)` picks the strategy at runtime with a lookup from
   `goal` to strategy class (a Simple Factory: one concrete class, no Creator hierarchy).
 - **Trade-off:** a new goal is one new class plus one line in the factory, at the cost of three classes
-  and a factory instead of one function.
+  and a factory instead of one function. A lookup table per goal would not be enough: the goals differ in
+  behaviour, not only in numbers (`EnduranceStrategy` and `FatLossStrategy` override the progression of
+  weeks 2 and 3 in `SplitStrategy`'s hooks: longer bouts, shorter rests).
 
 ### Composite (Behavioral)
 
@@ -84,7 +86,8 @@ made by deterministic code, so it can be tested without a model.
   then schedule, then load.
 - **Why:** processing steps should be exchangeable and reorderable, and small steps are easier to
   reuse and test than one large one.
-- **Where:** `SafetyFilter → ScheduleFilter → LoadFilter` with a common `process(context)` interface and
+- **Where:** `SafetyFilter → ScheduleFilter → LoadFilter` (`domain/adaptation.py`), a push pipeline
+  (`AdaptationPipeline.run()` hands the context from filter to filter) with a common `process(context)` interface and
   `AdaptationContext` as the data format along the pipe. If a filter fails, no Command is executed and
   the plan stays unchanged.
 - **Trade-off:** a new rule is a new filter, testable alone, but shared information has to travel in
@@ -141,6 +144,20 @@ made by deterministic code, so it can be tested without a model.
 - **Trade-off:** new abilities are new tools, but tool calling is less reliable with a small local
   model, so the fixed questions remain as fallback.
 
+## Refactoring from the baseline
+
+The naive baseline (git tag `v0-baseline`, one file) shows the code smells of the Refactoring lecture.
+Each step removed some of them by introducing a pattern, while the behaviour stayed the same
+(Rahul's scenario tests check the same rules end to end).
+
+| Code smell | In the baseline | Change | Commit |
+|---|---|---|---|
+| Large classes | `FitnessCoach` holds profile, plan, rules, LLM calls, storage and CLI | Layers; domain models and the Composite; services, states, filters | `3db5269`, `b069233`, `ceac8ca` |
+| Scattered conditionals | `if self.mode == ...`, `if p["goal"] == ...`, `if lt == "kg" ...` | State; Strategy per goal; the load type in the leaf, one rounding rule | `b069233`, `ceac8ca`, `3db5269` |
+| Duplication | the prompt header, the 3-attempt loop and the "apply to all remaining sessions" loop are copied | one prompt module; `with_retries()` and `AskingState`; the Commands with Template Method | `f71c9da`, `b069233`, `ceac8ca` |
+| Tight coupling | LangChain, JSON files and `input()`/`print()` inside the rules | Adapter and the interfaces of the application layer | `f71c9da`, `b069233` |
+| Difficult testing | a rule only runs inside the interactive loop with a model | fakes for every interface; the tests run without a model | all steps |
+
 ## Patterns rejected on purpose
 
 | Pattern | Why not |
@@ -151,7 +168,7 @@ made by deterministic code, so it can be tested without a model.
 | **Broker** | Its Context is "distributed or heterogeneous systems with independent cooperating components"; our app is a single local process. |
 | **Master-Slave** | Its Context is "partitioning of work into semantically-identical sub-tasks"; our steps (safety, schedule, load) are different from each other and need no parallel work. |
 | **Prototype** | Its Context is "creation of objects whose classes and properties are not known until run-time"; all our classes and fields are fixed Pydantic models. |
-| **Client-Server** | Its Context is a "distributed application" with "multiple distributed clients"; our app has one user and one process, and the local Ollama server it calls is hidden behind our Adapter. |
+| **Client-Server** | Its Context is a "distributed application" with "multiple distributed clients"; the web UI runs on Gradio's local web server and Ollama is a local server too, but both are frameworks we use, not a design we build: there is one user, and the slide's Forces (a limited service shared by many requesters, an unknown number of clients) do not apply. |
 | **Visitor** | Its Force is "object aggregate contains different interfaces"; all parts of our Composite share one interface, so the operations live in the Composite itself. |
 | **Flyweight** | It shares common state between many expensive objects; our catalog has about 50 exercises, and sessions simply refer to them by `exercise_id`. |
 | **MVC** | Its Force is that "the same model may need several simultaneous views"; we do have two views (CLI and web chat), but both only pass text to `CoachSession` and show its reply, so no controller is needed: the State machine decides, and the Layers keep both views free of domain logic. |
