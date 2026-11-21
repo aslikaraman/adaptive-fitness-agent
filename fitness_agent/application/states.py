@@ -193,28 +193,32 @@ class OnboardingState(AskingState):
         return PlanReviewState()
 
 
-MENU = "What next? 1) Give feedback  2) New plan (redo onboarding)  q) Quit"
+MENU = "What next? 1) Give feedback  2) New plan (redo onboarding)  3) Undo last change  q) Quit"
 
 
 class PlanReviewState(CoachState):
     """Shows the plan and the menu."""
 
     def enter(self, session: CoachSession) -> CoachState | None:
-        """Show the plan and the menu."""
+        """Show the current plan (as saved) and the menu."""
+        session.plan = session.storage.load_plan() or session.plan
         session.say(describe_plan(session.plan))
         session.say(MENU)
 
     def handle(self, session: CoachSession, text: str) -> CoachState:
-        """1 -> feedback, 2 -> onboarding again, q -> quit."""
+        """1 -> feedback, 2 -> onboarding again, 3 -> undo, q -> quit."""
         choice = text.strip().lower()
         if choice == "1":
             return FeedbackState()
         if choice == "2":
             return OnboardingState()
+        if choice == "3":
+            session.say(session.adaptation.undo_last_change())
+            return PlanReviewState()
         if choice == "q":
             session.finish()
             return self
-        session.say("Please choose 1, 2 or q. " + MENU)
+        session.say("Please choose 1, 2, 3 or q. " + MENU)
         return self
 
 
@@ -302,7 +306,7 @@ class AdaptationState(CoachState):
 
     def enter(self, session: CoachSession) -> CoachState | None:
         """Adapt the plan, show the messages, then move on to the plan review."""
-        for line in session.adapt(self.feedback):
+        for line in session.adaptation.adapt(self.feedback):
             session.say(line)
         return PlanReviewState()
 

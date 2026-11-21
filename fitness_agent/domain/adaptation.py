@@ -24,6 +24,7 @@ from typing import Literal
 
 from fitness_agent.domain.commands import (AdjustVolumeCommand, PlanCommand, RemoveExerciseCommand,
                                            RescheduleCommand, SwapExerciseCommand)
+from fitness_agent.domain.commands import round_load as rounded
 from fitness_agent.domain.models import Exercise, Feedback, UserProfile
 from fitness_agent.domain.plan import PlannedExercise, Session, TrainingPlan, Week
 from fitness_agent.domain.strategies import PlanningStrategy
@@ -49,7 +50,6 @@ RESTART_LOAD = 0.7
 REP_STEP_DOWN = 2
 MIN_SETS = 2
 MIN_REPS = 1
-MIN_TIMED_LOAD = 5
 
 HINT_INCOMPLETE = ("Plan unchanged. If time is the problem, choose 'Redo onboarding' with "
                    "fewer days per week.")
@@ -179,15 +179,6 @@ def find_session(plan: TrainingPlan, session_ref: str) -> tuple[Week, Session]:
 def weekly_sets(week: Week) -> int:
     """The sets of one week."""
     return sum(exercise.sets for session in week.sessions for exercise in session.exercises)
-
-
-def rounded(load: float, load_type: str) -> float:
-    """A load rounded the way the catalog counts: 0.5 kg, 5 seconds, whole reps."""
-    if load_type == "kg":
-        return round(load * 2) / 2
-    if load_type == "time":
-        return max(MIN_TIMED_LOAD, round(load / 5) * 5)
-    return 0.0
 
 
 # ----------------------------------------------------------------- one load step

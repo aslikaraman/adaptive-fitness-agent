@@ -98,6 +98,10 @@ class Week(BaseModel):
         for session in self.sessions:
             session.scale_intensity(factor)
 
+    def total_sets(self) -> int:
+        """All sets of the week."""
+        return sum(exercise.sets for session in self.sessions for exercise in session.exercises)
+
 
 class PlanMemento(BaseModel):
     """Snapshot of a TrainingPlan before a change, plus the rule that fired."""

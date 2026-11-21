@@ -1,25 +1,23 @@
 """CoachSession: the Context of the State pattern and the only entry point for the CLI."""
 
-from collections.abc import Callable
-
+from fitness_agent.application.adaptation import AdaptationService
 from fitness_agent.application.coach_agent import CoachAgent
 from fitness_agent.application.onboarding import OnboardingService
 from fitness_agent.application.planning import PlanService
 from fitness_agent.application.states import CoachState, OnboardingState, PlanReviewState
 from fitness_agent.application.storage import Storage
-from fitness_agent.domain.models import Feedback
 
 
 class CoachSession:
     """Holds the current state and the user's data; the CLI passes every input line to it."""
 
     def __init__(self, onboarding: OnboardingService, planner: PlanService, storage: Storage,
-                 adapt: Callable[[Feedback], list[str]], agent: CoachAgent | None = None) -> None:
-        """adapt changes the plan for one Feedback and returns the lines to show the user."""
+                 adaptation: AdaptationService, agent: CoachAgent | None = None) -> None:
+        """adaptation adapts the plan to a Feedback and undoes the last change."""
         self.onboarding = onboarding
         self.planner = planner
         self.storage = storage
-        self.adapt = adapt
+        self.adaptation = adaptation
         self.agent = agent
         self.profile = storage.load_profile()
         self.plan = storage.load_plan()

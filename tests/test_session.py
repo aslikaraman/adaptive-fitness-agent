@@ -47,18 +47,31 @@ class FakePlanner:
         return make_plan()
 
 
-def make_session(storage=None, onboarding=None, agent=None):
-    """A CoachSession with fakes; adapt records the feedback it gets."""
-    adapted = []
+class FakeAdaptation:
+    """Stands in for AdaptationService: records the feedback, counts the undos."""
 
-    def adapt(feedback):
+    def __init__(self):
+        """Nothing adapted yet."""
+        self.adapted = []
+        self.undos = 0
+
+    def adapt(self, feedback):
         """Record the feedback."""
-        adapted.append(feedback)
+        self.adapted.append(feedback)
         return ["Plan adapted."]
 
+    def undo_last_change(self):
+        """Count the undo."""
+        self.undos += 1
+        return "Undone: test change"
+
+
+def make_session(storage=None, onboarding=None, agent=None):
+    """A CoachSession with fakes; the returned list holds every adapted feedback."""
+    adaptation = FakeAdaptation()
     session = CoachSession(onboarding or FakeOnboarding(PROFILE), FakePlanner(),
-                           storage or InMemoryStorage(), adapt, agent)
-    return session, adapted
+                           storage or InMemoryStorage(), adaptation, agent)
+    return session, adaptation.adapted
 
 
 def answer_all(session, answers):
@@ -108,7 +121,7 @@ def test_menu_quit_and_unknown_choice():
     """q ends the session; anything else repeats the menu."""
     session, _ = make_session(InMemoryStorage(PROFILE, make_plan()))
     session.start()
-    assert "Please choose 1, 2 or q" in session.handle("hello")
+    assert "Please choose 1, 2, 3 or q" in session.handle("hello")
     session.handle("q")
     assert session.finished
 
@@ -213,3 +226,12 @@ def test_plan_text_shows_each_load_type():
     text = describe_plan(plan)
     assert "goblet_squat: 3 x 8, 12.5 kg" in text and "plank: 2 x 1, 30 s" in text
     assert "push_up: 3 x 10, bodyweight" in text
+
+
+def test_undo_from_the_menu_shows_the_result_and_the_plan():
+    """3 undoes the last change and shows the plan again."""
+    session, _ = make_session(InMemoryStorage(PROFILE, make_plan()))
+    session.start()
+    output = session.handle("3")
+    assert "Undone: test change" in output and "Week 1" in output
+    assert session.adaptation.undos == 1 and isinstance(session.state, PlanReviewState)

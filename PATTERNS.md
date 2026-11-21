@@ -96,7 +96,8 @@ made by deterministic code, so it can be tested without a model.
   controlled, logged steps.
 - **Why:** requests should be undoable, and the plan's state should be stored and restored without
   exposing its internals.
-- **Where:** filters create `SwapExerciseCommand`, `AdjustVolumeCommand`, `RescheduleCommand` (with all
+- **Where:** filters create `SwapExerciseCommand`, `RemoveExerciseCommand`, `AdjustVolumeCommand`,
+  `RescheduleCommand` (with all
   parameters as members); `execute()` stores a `PlanMemento` of the `TrainingPlan` (originator), `undo()`
   restores it, so each Command is the caretaker of its Memento; the history keeps the executed Commands,
   one entry per feedback cycle.
@@ -112,7 +113,9 @@ made by deterministic code, so it can be tested without a model.
 - **Where:** abstract `PlanCommand.execute(plan)` stores the `PlanMemento`, then calls `_apply(plan)`,
   which each concrete Command implements; `undo()` is written once in `PlanCommand`. The question
   states use the same idea: `AskingState` fixes ask → validate → re-ask, and `OnboardingState` and
-  `FeedbackState` only add their questions and their next state.
+  `FeedbackState` only add their questions and their next state. `SplitStrategy` does the same for the
+  three goals: it fixes the split, the fallback week and the progression, and each goal only supplies
+  its tables and numbers.
 - **Trade-off:** a new Command only implements `_apply()` and cannot forget the Memento, but the
   Commands share a base class.
 
@@ -151,5 +154,5 @@ made by deterministic code, so it can be tested without a model.
 | **Client-Server** | Its Context is a "distributed application" with "multiple distributed clients"; our app has one user and one process, and the local Ollama server it calls is hidden behind our Adapter. |
 | **Visitor** | Its Force is "object aggregate contains different interfaces"; all parts of our Composite share one interface, so the operations live in the Composite itself. |
 | **Flyweight** | It shares common state between many expensive objects; our catalog has about 50 exercises, and sessions simply refer to them by `exercise_id`. |
-| **MVC** | Its Force is that "the same model may need several simultaneous views"; we have one text view, and the Layers already keep the CLI free of domain logic. |
+| **MVC** | Its Force is that "the same model may need several simultaneous views"; we do have two views (CLI and web chat), but both only pass text to `CoachSession` and show its reply, so no controller is needed: the State machine decides, and the Layers keep both views free of domain logic. |
 | **MOVE** | Its Context is "interactive applications with shared state, user interfaces, and workflows that may involve asynchronous tasks"; we have one synchronous text CLI, and our workflow logic already lives in the application services and the State machine. |

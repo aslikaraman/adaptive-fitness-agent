@@ -6,26 +6,24 @@ Each method makes exactly one model call; the retry loop is in the
 application layer.
 """
 
-from langchain_ollama import ChatOllama
-
 from fitness_agent.application.llm_client import LLMClient, LLMError
 from fitness_agent.domain.models import Exercise, PlanDraft, UserProfile
 from fitness_agent.domain.plan import TrainingPlan
 from fitness_agent.infrastructure import prompts
+from fitness_agent.infrastructure.ollama_model import DEFAULT_MODEL, build_chat_model
 
 
 class OllamaAdapter(LLMClient):
     """LLMClient backed by a local Ollama model through LangChain."""
 
-    def __init__(self, model: str = "qwen3", num_predict: int = 1000, chat_model=None) -> None:
+    def __init__(self, model: str = DEFAULT_MODEL, num_predict: int = 1000,
+                 chat_model=None) -> None:
         """Create the adapter.
 
         num_predict caps the output length (the model runs on the CPU, so every token costs
         time). chat_model can replace ChatOllama, e.g. with a stub in tests.
         """
-        self._chat = chat_model or ChatOllama(
-            model=model, temperature=0, reasoning=False, num_predict=num_predict
-        )
+        self._chat = chat_model or build_chat_model(model, num_predict=num_predict)
 
     def _structured(self, schema, messages):
         """One structured call; any failure becomes LLMError."""

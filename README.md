@@ -4,7 +4,7 @@ Team project for **Design Patterns UE (WS 2026/27, TU Graz)** – Example Projec
 an agentic AI fitness coach built with LangChain. It onboards the user, generates a
 training plan, asks about past workouts and adapts the plan to the answers.
 
-> Status: implementation phase. The application is not runnable yet; usage instructions will follow.
+> Status: implementation phase. The app runs end to end in the terminal and in a web chat UI.
 
 ## Requirements
 
@@ -35,10 +35,12 @@ installation; otherwise run `ollama serve`). Check with `ollama list`.
 ## Running
 
 ```bash
-python -m fitness_agent.interface.main
+python -m fitness_agent.interface.main     # terminal (CLI)
+python -m fitness_agent.interface.web      # web chat UI, then open http://localhost:7860
 ```
 
-_The application is still being built._
+Your profile, plan and feedback are saved in `data/`. Without a running Ollama the app still
+works: it asks fixed questions instead of reading free text and builds the plan with fixed rules.
 
 ## Running the tests
 

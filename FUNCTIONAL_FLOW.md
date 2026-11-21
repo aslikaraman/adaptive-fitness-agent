@@ -260,7 +260,7 @@ The feedback stays saved, so the user can retry.
 
 | Filter | Handles | Emits / sets |
 |---|---|---|
-| `SafetyFilter` | pain (precedence 1) | `SwapExerciseCommand`, `AdjustVolumeCommand` (decrease); sets `no_increase`, `see_professional` |
+| `SafetyFilter` | pain (precedence 1) | `SwapExerciseCommand`, `RemoveExerciseCommand` (no safe alternative), `AdjustVolumeCommand` (decrease); sets `no_increase`, `see_professional` |
 | `ScheduleFilter` | missed sessions, rest-day guardrail | `RescheduleCommand`; sets `no_increase` if a session is dropped |
 | `LoadFilter` | difficulty / completion (precedence 2–6), load guardrails | `AdjustVolumeCommand` (increase or decrease) |
 
@@ -309,7 +309,7 @@ set** instead (within the rep range; at the top of the range: no change).
 | **4** | ON_TARGET | **No change.** The built-in weekly progression continues. |
 | **5** | TOO_EASY | Every exercise of the session +1 load step, unless an increase is forbidden (§6.4). |
 | **6** | INCOMPLETE_LOW | **No change.** The CLI shows the hint: "Plan unchanged. If time is the problem, choose 'Redo onboarding' with fewer days per week." |
-| **–** | `missed_sessions = n > 0` (`ScheduleFilter`) | The missed sessions are the latest *n* planned sessions of the current week before the logged session. Each gets status `missed` and is moved (`RescheduleCommand`) to the next free day of the same week after the logged session, if the week still keeps at least one rest day. If no such day exists, the session gets status `dropped` and `no_increase = true` for this cycle. |
+| **–** | `missed_sessions = n > 0` (`ScheduleFilter`) | The missed sessions are the latest *n* planned sessions of the current week before the logged session. Each is moved (`RescheduleCommand`) to the next free day of the same week after the logged session, if the week still keeps at least one rest day. If no such day exists, the session gets status `dropped` and `no_increase = true` for this cycle. |
 
 Only **one** load rule (1–6) is applied per cycle, and rule 1 always wins.
 

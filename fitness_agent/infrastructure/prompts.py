@@ -15,6 +15,16 @@ SYSTEM = (
     "Follow the requested output format exactly."
 )
 
+AGENT_SYSTEM = (
+    SYSTEM + " The user tells you how a training session went. Read it, then call the tool "
+    "submit_feedback exactly once with: difficulty (1-10: how hard it felt), all_sets_done "
+    "(true/false), missed_sessions (planned sessions skipped, 0 if none) and pain_location "
+    "(knee, shoulder, lower_back, wrist, ankle, neck or hip; leave it out if nothing hurt). "
+    "If a tool answers that an argument is wrong, call it again with a corrected value. "
+    "Call undo_last_change only if the user asks to take back the last change. Never invent "
+    "training numbers: the app decides what changes."
+)
+
 
 def _messages(task: str, previous_error: str | None = None) -> Messages:
     """System text plus the task; on a retry, add why the previous answer was rejected."""
